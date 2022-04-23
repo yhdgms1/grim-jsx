@@ -40,6 +40,27 @@ import styles from "./styles.module.css";
 const title = template(`<h1 class="${styles.title}">Hello, ${name}!</h1>`);
 ```
 
+### Spread attributes
+
+Setting attributes manually is cool, but what if you want some attributes to be spreaded? Not a problem.
+
+This code:
+
+```jsx
+const title = <h1 {...props}>Hello!</h1>;
+```
+
+Will be compiled to:
+
+```jsx
+const _spread = (props) =>
+  Object.entries(props)
+    .map(([key, value]) => `${key}="${value}"`)
+    .join(" ");
+
+const title = template(`<h1 ${_spread(props)}>Hello!</h1>`);
+```
+
 ### Refs
 
 Setting attributes is not enough too. What if you want to get a reference to an element? That's where refs come in.

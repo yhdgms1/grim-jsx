@@ -19,6 +19,7 @@ const compileJSXPlugin = (babel, options) => {
   const { types: t } = babel;
 
   let templateFunctionName = t.identifier("grim_$t");
+  let spreadFunctionName = t.identifier("grim_$s");
   let firstElementChild = t.identifier("grim_$fec");
   let nextElementSibling = t.identifier("grim_$nes");
 
@@ -40,6 +41,10 @@ const compileJSXPlugin = (babel, options) => {
 
     if (typeof options.nextElementSibling === "string") {
       nextElementSibling = t.identifier(options.nextElementSibling);
+    }
+
+    if (typeof options.spreadFunctionName === "string") {
+      spreadFunctionName = t.identifier(options.spreadFunctionName);
     }
   }
 
@@ -141,6 +146,11 @@ const compileJSXPlugin = (babel, options) => {
                     }
                   }
                 }
+              } else if (t.isJSXSpreadAttribute(attr)) {
+                const { argument } = attr;
+
+                template.push(` `);
+                template.push(t.callExpression(spreadFunctionName, [argument]));
               }
             }
 
@@ -238,12 +248,17 @@ const compileJSXPlugin = (babel, options) => {
           nextElementSibling = path.scope.generateUidIdentifier("nes");
         }
 
+        if (spreadFunctionName.name === "grim_$s") {
+          spreadFunctionName = path.scope.generateUidIdentifier("s");
+        }
+
         const body = path.node.body;
 
         let addedImport = false;
 
         const importSpecifiers = [
           t.importSpecifier(templateFunctionName, t.identifier("template")),
+          t.importSpecifier(spreadFunctionName, t.identifier("spread")),
           t.importSpecifier(
             firstElementChild,
             t.identifier("firstElementChild")

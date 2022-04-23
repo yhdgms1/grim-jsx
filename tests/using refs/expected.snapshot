@@ -1,4 +1,4 @@
-import { template, firstElementChild, nextElementSibling } from "grim-jsx/runtime.js";
+import { template, spread, firstElementChild, nextElementSibling } from "grim-jsx/runtime.js";
 let button;
 
 const article = (() => {

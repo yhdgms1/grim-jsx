@@ -1,0 +1,3 @@
+const Component = (props) => (
+  <div {...props}></div>
+)

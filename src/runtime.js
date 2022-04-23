@@ -14,3 +14,11 @@ export const template = (html, isSVG) => {
 
 export const firstElementChild = "firstElementChild";
 export const nextElementSibling = "nextElementSibling";
+
+/**
+ * @param {object} props
+ */
+export const spread = (props) =>
+  Object.entries(props)
+    .map(([key, value]) => `${key}="${value}"`)
+    .join(" ");

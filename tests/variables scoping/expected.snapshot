@@ -1,4 +1,4 @@
-import { template as _t2, firstElementChild as _fec, nextElementSibling as _nes } from "grim-jsx/runtime.js";
+import { template as _t2, spread as _s, firstElementChild as _fec, nextElementSibling as _nes } from "grim-jsx/runtime.js";
 let _t = 'Noodles';
 let eggs;
 

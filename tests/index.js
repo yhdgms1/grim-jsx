@@ -10,6 +10,7 @@ import { compileJSXPlugin } from "../dist/bundle.js";
 const defaultOptions = {
   importSource: "grim-jsx/runtime.js",
   templateFunctionName: "template",
+  spreadFunctionName: "spread",
   firstElementChild: "firstElementChild",
   nextElementSibling: "nextElementSibling",
 };

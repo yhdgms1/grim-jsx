@@ -1,2 +1,3 @@
 import { template, spread, firstElementChild, nextElementSibling } from "grim-jsx/runtime.js";
-const div = template(`<div style="color:red;">Hello</div>`);
+
+const Component = props => template(`<div ${spread(props)}></div>`);
