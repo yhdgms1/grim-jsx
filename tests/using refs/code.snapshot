@@ -1,0 +1,17 @@
+let button;
+
+const article = (
+  <article>
+    <h1>Hello!</h1>
+    <p>Today we are going to find out something</p>
+    <button ref={button}>Find out!</button>
+  </article>
+);
+
+let foo;
+
+const footer = (
+  <footer ref={foo}>
+    <p>Copyright &copy; 2069</p>
+  </footer>
+);

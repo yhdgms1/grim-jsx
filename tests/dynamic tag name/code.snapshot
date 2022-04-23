@@ -1,0 +1,5 @@
+const As = (props) => {
+  const el = <props.as />;
+
+  return el;
+}

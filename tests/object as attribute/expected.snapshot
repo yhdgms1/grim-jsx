@@ -1,0 +1,2 @@
+import { template, firstElementChild, nextElementSibling } from "grim-jsx/runtime.js";
+const div = template(`<div style="color:red;">Hello</div>`);

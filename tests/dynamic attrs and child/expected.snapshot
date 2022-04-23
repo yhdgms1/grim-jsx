@@ -1,0 +1,9 @@
+import { template, firstElementChild, nextElementSibling } from "grim-jsx/runtime.js";
+import styles from './styles.module.css';
+
+const Paragraph = ({
+  children
+}) => {
+  const p = template(`<p class="${styles.paragraph}">${children}</p>`);
+  return p;
+};

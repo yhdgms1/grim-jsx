@@ -1,0 +1,6 @@
+import styles from './styles.module.css';
+
+const Paragraph = ({ children }) => {
+  const p = <p class={styles.paragraph}>{children}</p>;
+  return p;
+}

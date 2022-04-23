@@ -1,0 +1,6 @@
+import { template, firstElementChild, nextElementSibling } from "grim-jsx/runtime.js";
+
+const As = props => {
+  const el = template(`<${props.as}></${props.as}>`);
+  return el;
+};

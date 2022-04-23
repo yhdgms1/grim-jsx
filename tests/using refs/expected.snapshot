@@ -1,0 +1,16 @@
+import { template, firstElementChild, nextElementSibling } from "grim-jsx/runtime.js";
+let button;
+
+const article = (() => {
+  const tmpl = template(`<article><h1>Hello!</h1><p>Today we are going to find out something</p><button>Find out!</button></article>`);
+  button = tmpl[firstElementChild][nextElementSibling][nextElementSibling];
+  return tmpl;
+})();
+
+let foo;
+
+const footer = (() => {
+  const tmpl = template(`<footer><p>Copyright © 2069</p></footer>`);
+  foo = tmpl;
+  return tmpl;
+})();

@@ -1,0 +1,1 @@
+const div = <div style={{ color: 'red' }}>Hello</div>

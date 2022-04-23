@@ -1,0 +1,14 @@
+/* !no-default-options! */
+
+let _t = 'Noodles';
+
+let eggs;
+
+const list = (
+  <ul>
+    <li>{_t}</li>
+    <li>Soup</li>
+    <li>Rice</li>
+    <li ref={eggs}>Eggs</li>
+  </ul>
+)
