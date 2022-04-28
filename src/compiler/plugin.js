@@ -109,6 +109,12 @@ const compileJSXPlugin = (babel, options) => {
                 let name = getAttributeName(attr);
 
                 if (name === "ref" && t.isJSXExpressionContainer(attr.value)) {
+                  if (!!options.enableStringMode) {
+                    throw path.buildCodeFrameError(
+                      "Grim: Using ref's in string mode is impossible"
+                    );
+                  }
+
                   if (t.isIdentifier(attr.value.expression)) {
                     const right =
                       current.length > 0
@@ -198,97 +204,107 @@ const compileJSXPlugin = (babel, options) => {
 
         process(root);
 
-        const templateCall = t.callExpression(templateFunctionName, [
-          template.template,
-        ]);
-
         let tagName = getJSXElementName(root.openingElement.name);
 
+        let isSVG = false;
+
         if (typeof tagName === "string") {
-          if (tagName !== "svg" && constants.SVGElements.has(tagName)) {
+          isSVG = tagName !== "svg" && constants.SVGElements.has(tagName);
+        }
+
+        if (!!options.enableStringMode) {
+          path.replaceWith(template.template);
+        } else {
+          const templateCall = t.callExpression(templateFunctionName, [
+            template.template,
+          ]);
+
+          if (isSVG) {
             template.unshift(`<svg>`);
             templateCall.arguments.push(t.booleanLiteral(true));
             template.push(`</svg>`);
           }
-        }
 
-        if (expressions.length > 0) {
-          path.replaceWith(
-            t.callExpression(
-              t.arrowFunctionExpression(
-                [],
-                t.blockStatement([
-                  t.variableDeclaration("const", [
-                    t.variableDeclarator(templateName, templateCall),
-                  ]),
-                  ...expressions,
-                  t.returnStatement(templateName),
-                ])
-              ),
-              []
-            )
-          );
-        } else {
-          path.replaceWith(templateCall);
+          if (expressions.length > 0) {
+            path.replaceWith(
+              t.callExpression(
+                t.arrowFunctionExpression(
+                  [],
+                  t.blockStatement([
+                    t.variableDeclaration("const", [
+                      t.variableDeclarator(templateName, templateCall),
+                    ]),
+                    ...expressions,
+                    t.returnStatement(templateName),
+                  ])
+                ),
+                []
+              )
+            );
+          } else {
+            path.replaceWith(templateCall);
+          }
         }
       },
       Program(path) {
-        /**
-         * If the default values is present lets change them to identifies that doesn't collide with any locally defined variables
-         */
-        if (templateFunctionName.name === "grim_$t") {
-          templateFunctionName = path.scope.generateUidIdentifier("t");
-        }
+        const { body } = path.node;
 
-        if (firstElementChild.name === "grim_$fec") {
-          firstElementChild = path.scope.generateUidIdentifier("fec");
-        }
+        if (!options.enableStringMode) {
+          /**
+           * If the default values is present lets change them to identifies that doesn't collide with any locally defined variables
+           */
+          if (templateFunctionName.name === "grim_$t") {
+            templateFunctionName = path.scope.generateUidIdentifier("t");
+          }
 
-        if (nextElementSibling.name === "grim_$nes") {
-          nextElementSibling = path.scope.generateUidIdentifier("nes");
-        }
+          if (firstElementChild.name === "grim_$fec") {
+            firstElementChild = path.scope.generateUidIdentifier("fec");
+          }
 
-        if (spreadFunctionName.name === "grim_$s") {
-          spreadFunctionName = path.scope.generateUidIdentifier("s");
-        }
+          if (nextElementSibling.name === "grim_$nes") {
+            nextElementSibling = path.scope.generateUidIdentifier("nes");
+          }
 
-        const body = path.node.body;
+          if (spreadFunctionName.name === "grim_$s") {
+            spreadFunctionName = path.scope.generateUidIdentifier("s");
+          }
 
-        let addedImport = false;
+          let addedImport = false;
 
-        const importSpecifiers = [
-          t.importSpecifier(templateFunctionName, t.identifier("template")),
-          t.importSpecifier(spreadFunctionName, t.identifier("spread")),
-          t.importSpecifier(
-            firstElementChild,
-            t.identifier("firstElementChild")
-          ),
-          t.importSpecifier(
-            nextElementSibling,
-            t.identifier("nextElementSibling")
-          ),
-        ];
+          const importSpecifiers = [
+            t.importSpecifier(templateFunctionName, t.identifier("template")),
+            t.importSpecifier(spreadFunctionName, t.identifier("spread")),
+            t.importSpecifier(
+              firstElementChild,
+              t.identifier("firstElementChild")
+            ),
+            t.importSpecifier(
+              nextElementSibling,
+              t.identifier("nextElementSibling")
+            ),
+          ];
 
-        for (const child of body) {
-          if (t.isImportDeclaration(child)) {
-            if (t.isStringLiteral(child.source)) {
-              if (child.source.value === importSource) {
-                child.specifiers.push(...importSpecifiers);
+          for (const child of body) {
+            if (t.isImportDeclaration(child)) {
+              if (t.isStringLiteral(child.source)) {
+                if (child.source.value === importSource) {
+                  child.specifiers.push(...importSpecifiers);
 
-                addedImport = true;
-                break;
+                  addedImport = true;
+                  break;
+                }
               }
             }
           }
-        }
 
-        if (!addedImport) {
-          const importeer = t.importDeclaration(
-            importSpecifiers,
-            t.stringLiteral(importSource)
-          );
+          if (!addedImport) {
+            const importeer = t.importDeclaration(
+              importSpecifiers,
+              t.stringLiteral(importSource)
+            );
 
-          body.unshift(importeer);
+            body.unshift(importeer);
+          }
         }
       },
     },

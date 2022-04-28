@@ -1,0 +1,10 @@
+/*options: {"enableStringMode":true}*/
+
+const people = ["Artem", "Ivan", "Arina", "Roman", "Kenzi"];
+
+const element = (
+  <div>
+    <h1>Hello!</h1>
+    <ul>{people.map((person) => <li>{person}</li>).join("")}</ul>
+  </div>
+);

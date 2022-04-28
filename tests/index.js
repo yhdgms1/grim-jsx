@@ -36,23 +36,35 @@ async function main() {
         const code = await fsp.readFile(codePath, "utf-8");
         const expected = await fsp.readFile(expectedPath, "utf-8");
 
-        const ignoreDefaultOptions = code.includes(
-          "/* !no-default-options! */"
-        );
-
-        const optionsInCaseOfIgnoringDefaults = {
-          importSource: defaultOptions.importSource,
-        };
-
         test(entry, async () => {
+          /** @type {null | object} */
+          const options = (() => {
+            let rx = /\/\*(.*?)\*\//s;
+
+            let match = rx.exec(code);
+
+            if (typeof match === "object" && Array.isArray(match)) {
+              if (typeof match[1] === "string") {
+                let m = match[1].trim();
+
+                if (m.startsWith("options: ")) {
+                  m = m.slice(9);
+
+                  try {
+                    return JSON.parse(m);
+                  } catch (error) {
+                    return null;
+                  }
+                }
+              }
+            }
+
+            return null;
+          })();
+
           const transformResult = await transformAsync(code, {
             plugins: [
-              [
-                compileJSXPlugin,
-                ignoreDefaultOptions
-                  ? optionsInCaseOfIgnoringDefaults
-                  : defaultOptions,
-              ],
+              [compileJSXPlugin, options !== null ? options : defaultOptions],
             ],
             babelrc: false,
             comments: false,

@@ -1,4 +1,4 @@
-/* !no-default-options! */
+/*options: {"importSource":"grim-jsx/runtime.js"}*/
 
 let _t = 'Noodles';
 

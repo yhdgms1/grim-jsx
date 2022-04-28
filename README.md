@@ -97,3 +97,28 @@ const article = (() => {
 ```
 
 So you can use the button reference in your code.
+
+### No Runtime
+
+But what if you just want Grim to compile JSX into strings and not to bring it's own runtime? You can use the `enableStringMode` option.
+Within this mode, this code:
+
+```jsx
+const people = ["Artem", "Ivan", "Arina", "Roman", "Kenzi"];
+
+const element = (
+  <div>
+    <h1>Hello!</h1>
+    <ul>{people.map((person) => <li>{person}</li>).join("")}</ul>
+  </div>
+);
+```
+
+Will be compiled to:
+
+```jsx
+const people = ["Artem", "Ivan", "Arina", "Roman", "Kenzi"];
+const element = `<div><h1>Hello!</h1><ul>${people.map((person) => `<li>${person}</li>`).join("")}</ul></div>`;
+```
+
+However, [Refs](#refs) will not work in this mode.
