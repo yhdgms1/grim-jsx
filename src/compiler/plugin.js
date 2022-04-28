@@ -115,23 +115,26 @@ const compileJSXPlugin = (babel, options) => {
                     );
                   }
 
-                  if (t.isIdentifier(attr.value.expression)) {
-                    const right =
-                      current.length > 0
-                        ? createMemberExpression(templateName, ...current) ??
-                          templateName
-                        : templateName;
+                  const { expression } = attr.value;
 
-                    expressions.push(
-                      t.expressionStatement(
-                        t.assignmentExpression(
-                          "=",
-                          t.identifier(attr.value.expression.name),
-                          right
-                        )
-                      )
-                    );
+                  if (
+                    !t.isIdentifier(expression) &&
+                    !t.isMemberExpression(expression)
+                  ) {
+                    continue;
                   }
+
+                  const right =
+                    current.length > 0
+                      ? createMemberExpression(templateName, ...current) ??
+                        templateName
+                      : templateName;
+
+                  expressions.push(
+                    t.expressionStatement(
+                      t.assignmentExpression("=", expression, right)
+                    )
+                  );
                 } else {
                   if (t.isStringLiteral(attr.value)) {
                     template.push(insertAttrubute(name, attr.value.value));
