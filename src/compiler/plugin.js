@@ -118,23 +118,21 @@ const compileJSXPlugin = (babel, options) => {
                   const { expression } = attr.value;
 
                   if (
-                    !t.isIdentifier(expression) &&
-                    !t.isMemberExpression(expression)
+                    t.isIdentifier(expression) ||
+                    t.isMemberExpression(expression)
                   ) {
-                    continue;
+                    const right =
+                      current.length > 0
+                        ? createMemberExpression(templateName, ...current) ??
+                          templateName
+                        : templateName;
+
+                    expressions.push(
+                      t.expressionStatement(
+                        t.assignmentExpression("=", expression, right)
+                      )
+                    );
                   }
-
-                  const right =
-                    current.length > 0
-                      ? createMemberExpression(templateName, ...current) ??
-                        templateName
-                      : templateName;
-
-                  expressions.push(
-                    t.expressionStatement(
-                      t.assignmentExpression("=", expression, right)
-                    )
-                  );
                 } else {
                   if (t.isStringLiteral(attr.value)) {
                     template.push(insertAttrubute(name, attr.value.value));
