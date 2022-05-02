@@ -250,12 +250,15 @@ const compileJSXPlugin = (babel, options) => {
       Program(path) {
         const { body } = path.node;
 
-        if (!options.enableStringMode) {
+        const source = path.getSource();
+        const hasJSX = source.includes("</") || source.includes("/>");
+
+        if (!options.enableStringMode && hasJSX) {
           /**
            * If the default values is present lets change them to identifies that doesn't collide with any locally defined variables
            */
           if (templateFunctionName.name === "grim_$t") {
-            templateFunctionName = path.scope.generateUidIdentifier("t");
+            templateFunctionName = path.scope.generateUidIdentifier("tmpl");
           }
 
           if (firstElementChild.name === "grim_$fec") {
@@ -267,7 +270,7 @@ const compileJSXPlugin = (babel, options) => {
           }
 
           if (spreadFunctionName.name === "grim_$s") {
-            spreadFunctionName = path.scope.generateUidIdentifier("s");
+            spreadFunctionName = path.scope.generateUidIdentifier("sprd");
           }
 
           let addedImport = false;

@@ -1,9 +1,9 @@
-import { template as _t2, spread as _s, firstElementChild as _fec, nextElementSibling as _nes } from "grim-jsx/runtime.js";
-let _t = 'Noodles';
+import { template as _tmpl2, spread as _sprd, firstElementChild as _fec, nextElementSibling as _nes } from "grim-jsx/runtime.js";
+let _tmpl = 'Noodles';
 let eggs;
 
 const list = (() => {
-  const tmpl = _t2(`<ul><li>${_t}</li><li>Soup</li><li>Rice</li><li>Eggs</li></ul>`);
+  const tmpl = _tmpl2(`<ul><li>${_tmpl}</li><li>Soup</li><li>Rice</li><li>Eggs</li></ul>`);
 
   eggs = tmpl[_fec][_nes][_nes][_nes];
   return tmpl;

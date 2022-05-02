@@ -1,12 +1,12 @@
 /*options: {"importSource":"grim-jsx/runtime.js"}*/
 
-let _t = 'Noodles';
+let _tmpl = 'Noodles';
 
 let eggs;
 
 const list = (
   <ul>
-    <li>{_t}</li>
+    <li>{_tmpl}</li>
     <li>Soup</li>
     <li>Rice</li>
     <li ref={eggs}>Eggs</li>
