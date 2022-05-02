@@ -1,9 +1,11 @@
-import * as t from "@babel/types";
+import { getBabel } from "../babel";
 
 /**
- * @param {t.JSXIdentifier | t.JSXMemberExpression | t.JSXNamespacedName} node
+ * @param {babel.types.JSXIdentifier | babel.types.JSXMemberExpression | babel.types.JSXNamespacedName} node
  */
 const getJSXElementName = (node) => {
+  const { types: t } = getBabel();
+
   let name = "";
 
   if (t.isJSXIdentifier(node)) {

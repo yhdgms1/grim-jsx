@@ -1,7 +1,10 @@
-import * as t from "@babel/types";
+import { getBabel } from "../babel";
+
 import { jsxMemberExpressionToMemberExpression } from "./jsx-member-expression-to-member-expression";
 
 const createTemplateLiteralBuilder = () => {
+  const { types: t } = getBabel();
+
   const tl = t.templateLiteral(
     [t.templateElement({ raw: "", cooked: "" })],
     []

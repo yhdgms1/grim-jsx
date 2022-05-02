@@ -1,9 +1,11 @@
-import * as t from "@babel/types";
+import { getBabel } from "../babel";
 
 /**
- * @param {t.JSXAttribute} attr
+ * @param {babel.types.JSXAttribute} attr
  */
 const getAttributeName = (attr) => {
+  const { types: t } = getBabel();
+
   let name = "not-found";
 
   if (typeof attr.name.name === "string") {

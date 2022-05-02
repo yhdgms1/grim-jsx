@@ -1,9 +1,11 @@
-import * as t from "@babel/types";
+import { getBabel } from "../babel";
 
 /**
- * @param {t.JSXMemberExpression | t.JSXIdentifier} expr
+ * @param {babel.types.JSXMemberExpression | babel.types.JSXIdentifier} expr
  */
 const jsxMemberExpressionToMemberExpression = (expr) => {
+  const { types: t } = getBabel();
+
   if (t.isJSXIdentifier(expr)) {
     return t.identifier(expr.name);
   }

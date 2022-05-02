@@ -1,5 +1,7 @@
 import SyntaxJSX from "@babel/plugin-syntax-jsx";
 
+import { setBabel } from "./babel";
+
 import {
   objectExpressionToAttribute,
   insertAttrubute,
@@ -16,6 +18,8 @@ import {
  * @returns {babel.PluginObj}
  */
 const compileJSXPlugin = (babel, options) => {
+  setBabel(babel);
+
   const { types: t } = babel;
 
   let templateFunctionName = t.identifier("grim_$t");

@@ -1,10 +1,12 @@
-import * as t from "@babel/types";
+import { getBabel } from "../babel";
 
 /**
- * @param {t.Identifier[]} parts
- * @returns {t.MemberExpression | null}
+ * @param {babel.types.Identifier[]} parts
+ * @returns {babel.types.MemberExpression | null}
  */
 const createMemberExpression = (...parts) => {
+  const { types: t } = getBabel();
+
   let current = null;
 
   for (let i = 1; i < parts.length; i++) {

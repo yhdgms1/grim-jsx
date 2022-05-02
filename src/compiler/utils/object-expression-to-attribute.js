@@ -1,9 +1,11 @@
-import * as t from "@babel/types";
+import { getBabel } from "../babel";
 
 /**
- * @param {t.ObjectProperty} p
+ * @param {babel.types.ObjectProperty} p
  */
 const getKey = (p) => {
+  const { types: t } = getBabel();
+
   if (t.isIdentifier(p.key)) {
     return p.key.name;
   } else if (t.isStringLiteral(p.key)) {
@@ -14,9 +16,11 @@ const getKey = (p) => {
 };
 
 /**
- * @param {t.ObjectProperty} p
+ * @param {babel.types.ObjectProperty} p
  */
 const getValue = (p) => {
+  const { types: t } = getBabel();
+
   if (t.isStringLiteral(p.value)) {
     return p.value.value;
   } else if (t.isNumericLiteral(p.value)) {
@@ -27,9 +31,11 @@ const getValue = (p) => {
 };
 
 /**
- * @param {t.ObjectExpression} ex
+ * @param {babel.types.ObjectExpression} ex
  */
 const objectExpressionToAttribute = (ex) => {
+  const { types: t } = getBabel();
+
   const properties = ex.properties;
 
   let result = "";
