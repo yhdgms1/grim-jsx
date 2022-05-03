@@ -1,6 +1,7 @@
-import { template, spread, firstElementChild, nextElementSibling } from "grim-jsx/runtime.js";
+import { template as _tmpl } from "grim-jsx/runtime.js";
 
 const As = props => {
-  const el = template(`<${props.as}></${props.as}>`);
+  const el = _tmpl(`<${props.as}></${props.as}>`);
+
   return el;
 };

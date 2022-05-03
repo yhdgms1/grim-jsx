@@ -1,3 +1,3 @@
-import { template, spread, firstElementChild, nextElementSibling } from "grim-jsx/runtime.js";
+import { template as _tmpl, spread as _sprd } from "grim-jsx/runtime.js";
 
-const Component = props => template(`<div ${spread(props)}></div>`);
+const Component = props => _tmpl(`<div ${_sprd(props)}></div>`);

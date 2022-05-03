@@ -34,23 +34,14 @@ const compileJSXPlugin = (babel, options) => {
     if (typeof options.importSource === "string") {
       importSource = options.importSource;
     }
-
-    if (typeof options.templateFunctionName === "string") {
-      templateFunctionName = t.identifier(options.templateFunctionName);
-    }
-
-    if (typeof options.firstElementChild === "string") {
-      firstElementChild = t.identifier(options.firstElementChild);
-    }
-
-    if (typeof options.nextElementSibling === "string") {
-      nextElementSibling = t.identifier(options.nextElementSibling);
-    }
-
-    if (typeof options.spreadFunctionName === "string") {
-      spreadFunctionName = t.identifier(options.spreadFunctionName);
-    }
   }
+
+  let inuse = {
+    template: false,
+    firstElementChild: false,
+    nextElementSibling: false,
+    spread: false,
+  };
 
   return {
     inherits: SyntaxJSX,
@@ -59,6 +50,22 @@ const compileJSXPlugin = (babel, options) => {
         throw path.buildCodeFrameError(
           "Grim: Transforming JSXFramgents is not supported"
         );
+      },
+      Program(path) {
+        /**
+         * Clean up
+         */
+        inuse = {
+          template: false,
+          firstElementChild: false,
+          nextElementSibling: false,
+          spread: false,
+        };
+
+        templateFunctionName = path.scope.generateUidIdentifier("tmpl");
+        firstElementChild = path.scope.generateUidIdentifier("fec");
+        nextElementSibling = path.scope.generateUidIdentifier("nes");
+        spreadFunctionName = path.scope.generateUidIdentifier("sprd");
       },
       JSXElement(path) {
         const { parent, node } = path;
@@ -131,6 +138,16 @@ const compileJSXPlugin = (babel, options) => {
                           templateName
                         : templateName;
 
+                    for (const item of current) {
+                      if (item.name === firstElementChild.name) {
+                        inuse.firstElementChild = true;
+                      }
+
+                      if (item.name === nextElementSibling.name) {
+                        inuse.nextElementSibling = true;
+                      }
+                    }
+
                     expressions.push(
                       t.expressionStatement(
                         t.assignmentExpression("=", expression, right)
@@ -162,6 +179,8 @@ const compileJSXPlugin = (babel, options) => {
 
                 template.push(` `);
                 template.push(t.callExpression(spreadFunctionName, [argument]));
+
+                inuse.spread = true;
               }
             }
 
@@ -217,9 +236,11 @@ const compileJSXPlugin = (babel, options) => {
           isSVG = tagName !== "svg" && constants.SVGElements.has(tagName);
         }
 
-        if (!!options.enableStringMode) {
+        if (options.enableStringMode) {
           path.replaceWith(template.template);
         } else {
+          inuse.template = true;
+
           const templateCall = t.callExpression(templateFunctionName, [
             template.template,
           ]);
@@ -251,70 +272,65 @@ const compileJSXPlugin = (babel, options) => {
           }
         }
       },
-      Program(path) {
-        const { body } = path.node;
+    },
+    post(file) {
+      const { body } = file.ast.program;
 
-        const source = path.getSource();
-        const hasJSX = source.includes("</") || source.includes("/>");
+      /** @type {babel.types.ImportSpecifier[]} */
+      const importSpecifiers = [];
 
-        if (!options.enableStringMode && hasJSX) {
-          /**
-           * If the default values is present lets change them to identifies that doesn't collide with any locally defined variables
-           */
-          if (templateFunctionName.name === "grim_$t") {
-            templateFunctionName = path.scope.generateUidIdentifier("tmpl");
-          }
+      if (inuse.template === true) {
+        importSpecifiers.push(
+          t.importSpecifier(templateFunctionName, t.identifier("template"))
+        );
+      }
 
-          if (firstElementChild.name === "grim_$fec") {
-            firstElementChild = path.scope.generateUidIdentifier("fec");
-          }
+      if (inuse.spread === true) {
+        importSpecifiers.push(
+          t.importSpecifier(spreadFunctionName, t.identifier("spread"))
+        );
+      }
 
-          if (nextElementSibling.name === "grim_$nes") {
-            nextElementSibling = path.scope.generateUidIdentifier("nes");
-          }
+      if (inuse.firstElementChild === true) {
+        importSpecifiers.push(
+          t.importSpecifier(
+            firstElementChild,
+            t.identifier("firstElementChild")
+          )
+        );
+      }
 
-          if (spreadFunctionName.name === "grim_$s") {
-            spreadFunctionName = path.scope.generateUidIdentifier("sprd");
-          }
+      if (inuse.nextElementSibling === true) {
+        importSpecifiers.push(
+          t.importSpecifier(
+            nextElementSibling,
+            t.identifier("nextElementSibling")
+          )
+        );
+      }
 
-          let addedImport = false;
+      let addedImport = false;
 
-          const importSpecifiers = [
-            t.importSpecifier(templateFunctionName, t.identifier("template")),
-            t.importSpecifier(spreadFunctionName, t.identifier("spread")),
-            t.importSpecifier(
-              firstElementChild,
-              t.identifier("firstElementChild")
-            ),
-            t.importSpecifier(
-              nextElementSibling,
-              t.identifier("nextElementSibling")
-            ),
-          ];
+      for (const child of body) {
+        if (t.isImportDeclaration(child)) {
+          if (t.isStringLiteral(child.source)) {
+            if (child.source.value === importSource) {
+              child.specifiers.push(...importSpecifiers);
 
-          for (const child of body) {
-            if (t.isImportDeclaration(child)) {
-              if (t.isStringLiteral(child.source)) {
-                if (child.source.value === importSource) {
-                  child.specifiers.push(...importSpecifiers);
-
-                  addedImport = true;
-                  break;
-                }
-              }
+              addedImport = true;
+              break;
             }
           }
-
-          if (!addedImport) {
-            const importeer = t.importDeclaration(
-              importSpecifiers,
-              t.stringLiteral(importSource)
-            );
-
-            body.unshift(importeer);
-          }
         }
-      },
+      }
+
+      const noImports = Object.values(inuse).every((value) => value === false);
+
+      if (!noImports && !addedImport) {
+        body.unshift(
+          t.importDeclaration(importSpecifiers, t.stringLiteral(importSource))
+        );
+      }
     },
   };
 };

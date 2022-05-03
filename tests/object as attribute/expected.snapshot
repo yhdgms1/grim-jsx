@@ -1,2 +1,3 @@
-import { template, spread, firstElementChild, nextElementSibling } from "grim-jsx/runtime.js";
-const div = template(`<div style="color:red;">Hello</div>`);
+import { template as _tmpl } from "grim-jsx/runtime.js";
+
+const div = _tmpl(`<div style="color:red;">Hello</div>`);

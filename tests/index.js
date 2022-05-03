@@ -9,10 +9,6 @@ import { compileJSXPlugin } from "../dist/bundle.js";
 
 const defaultOptions = {
   importSource: "grim-jsx/runtime.js",
-  templateFunctionName: "template",
-  spreadFunctionName: "spread",
-  firstElementChild: "firstElementChild",
-  nextElementSibling: "nextElementSibling",
 };
 
 const cwd = process.cwd();
@@ -68,6 +64,7 @@ async function main() {
             ],
             babelrc: false,
             comments: false,
+            filename: entry.replaceAll(" ", "_"),
           });
 
           if (!transformResult) {

@@ -1,9 +1,10 @@
-import { template, spread, firstElementChild, nextElementSibling } from "grim-jsx/runtime.js";
+import { template as _tmpl } from "grim-jsx/runtime.js";
 import styles from './styles.module.css';
 
 const Paragraph = ({
   children
 }) => {
-  const p = template(`<p class="${styles.paragraph}">${children}</p>`);
+  const p = _tmpl(`<p class="${styles.paragraph}">${children}</p>`);
+
   return p;
 };
