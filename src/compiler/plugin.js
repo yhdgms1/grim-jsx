@@ -14,7 +14,7 @@ import {
 
 /**
  * @param {typeof babel} babel
- * @param {import('./types').Options} options
+ * @param {import('../../types').Options} options
  * @returns {babel.PluginObj}
  */
 const compileJSXPlugin = (babel, options) => {
@@ -27,7 +27,6 @@ const compileJSXPlugin = (babel, options) => {
   let firstElementChild = t.identifier("grim_$fec");
   let nextElementSibling = t.identifier("grim_$nes");
 
-  let templateName = t.identifier("tmpl");
   let importSource = "grim-jsx/dist/runtime.js";
 
   if (typeof options === "object" && !Array.isArray(options)) {
@@ -90,6 +89,8 @@ const compileJSXPlugin = (babel, options) => {
         const expressions = [];
 
         const template = createTemplateLiteralBuilder();
+
+        let templateName = t.identifier("tmpl");
 
         /**
          * @param {typeof root.children[number]} node
