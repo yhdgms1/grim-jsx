@@ -1,1 +1,9 @@
 const div = <div style={{ color: 'red' }}>Hello</div>
+
+let key = window.style_key;
+let value = window.style_value();
+
+const elements = [
+  <span style={{ [key]: value }}>Hello</span>,
+  <span style={{ [window.style_key]: window.style_value() }}>Hello</span>
+]

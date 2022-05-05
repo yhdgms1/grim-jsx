@@ -162,12 +162,22 @@ const compileJSXPlugin = (babel, options) => {
                     const expression = attr.value.expression;
 
                     if (t.isObjectExpression(expression)) {
-                      template.push(
-                        insertAttrubute(
-                          name,
-                          objectExpressionToAttribute(expression)
-                        )
-                      );
+                      const attr = objectExpressionToAttribute(expression);
+
+                      if (attr === null) {
+                        inuse.spread = true;
+
+                        template.push(` ${name}="`);
+                        template.push(
+                          t.callExpression(spreadFunctionName, [
+                            expression,
+                            t.booleanLiteral(true),
+                          ])
+                        );
+                        template.push(`"`);
+                      } else {
+                        template.push(insertAttrubute(name, attr));
+                      }
                     } else if (t.isExpression(expression)) {
                       template.push(` ${name}="`);
                       template.push(expression);
