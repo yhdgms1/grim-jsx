@@ -2,9 +2,18 @@
 
 const people = ["Artem", "Ivan", "Arina", "Roman", "Kenzi"];
 
-const element = (
+let str = (
   <div>
     <h1>Hello!</h1>
     <ul>{people.map((person) => <li>{person}</li>).join("")}</ul>
   </div>
 );
+
+/* @disableStringMode */
+const node = <div></div>
+
+str = (
+  <div>
+    It should be a string
+  </div>
+)

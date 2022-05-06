@@ -9,6 +9,7 @@ import { compileJSXPlugin } from "../dist/bundle.js";
 
 const defaultOptions = {
   importSource: "grim-jsx/runtime.js",
+  enableCommentOptions: true,
 };
 
 const cwd = process.cwd();
@@ -60,7 +61,12 @@ async function main() {
 
           const transformResult = await transformAsync(code, {
             plugins: [
-              [compileJSXPlugin, options !== null ? options : defaultOptions],
+              [
+                compileJSXPlugin,
+                options !== null
+                  ? { ...defaultOptions, ...options }
+                  : defaultOptions,
+              ],
             ],
             babelrc: false,
             comments: false,

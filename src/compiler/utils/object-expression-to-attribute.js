@@ -61,6 +61,8 @@ const objectExpressionToAttribute = (ex) => {
          */
         return null;
       }
+    } else {
+      return null;
     }
   }
 
