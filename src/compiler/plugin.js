@@ -92,6 +92,45 @@ const compileJSXPlugin = (babel, options) => {
 
         let templateName = t.identifier("tmpl");
 
+        const opts = { ...options };
+
+        const extendOptions = () => {
+          if (!options.enableCommentOptions) return;
+
+          /**
+           * Path with comments
+           */
+          const p = path.findParent((p) => !!p.node.leadingComments);
+
+          if (p) {
+            const { leadingComments } = p.node;
+
+            if (!leadingComments) return;
+
+            for (const comment of leadingComments) {
+              const { value, loc } = comment;
+
+              /**
+               * The Top Line as all about global-file options
+               */
+              if (loc.start.line === 1) continue;
+
+              if (value.includes("@enableStringMode")) {
+                opts.enableStringMode = true;
+              }
+
+              if (value.includes("@disableStringMode")) {
+                opts.enableStringMode = false;
+              }
+            }
+          }
+        };
+
+        /**
+         * Try's to find the commend nodes with options
+         */
+        extendOptions();
+
         /**
          * @param {typeof root.children[number]} node
          */
@@ -121,7 +160,7 @@ const compileJSXPlugin = (babel, options) => {
                 let name = getAttributeName(attr);
 
                 if (name === "ref" && t.isJSXExpressionContainer(attr.value)) {
-                  if (!!options.enableStringMode) {
+                  if (opts.enableStringMode) {
                     throw path.buildCodeFrameError(
                       "Grim: Using ref's in string mode is impossible"
                     );
@@ -247,7 +286,7 @@ const compileJSXPlugin = (babel, options) => {
           isSVG = tagName !== "svg" && constants.SVGElements.has(tagName);
         }
 
-        if (options.enableStringMode) {
+        if (opts.enableStringMode) {
           path.replaceWith(template.template);
         } else {
           inuse.template = true;
@@ -290,34 +329,38 @@ const compileJSXPlugin = (babel, options) => {
       /** @type {babel.types.ImportSpecifier[]} */
       const importSpecifiers = [];
 
-      if (inuse.template === true) {
-        importSpecifiers.push(
-          t.importSpecifier(templateFunctionName, t.identifier("template"))
-        );
-      }
+      for (const [key, value] of Object.entries(inuse)) {
+        if (value) {
+          switch (key) {
+            case "template": {
+              importSpecifiers.push(
+                t.importSpecifier(templateFunctionName, t.identifier(key))
+              );
+              break;
+            }
 
-      if (inuse.spread === true) {
-        importSpecifiers.push(
-          t.importSpecifier(spreadFunctionName, t.identifier("spread"))
-        );
-      }
+            case "spread": {
+              importSpecifiers.push(
+                t.importSpecifier(spreadFunctionName, t.identifier(key))
+              );
+              break;
+            }
 
-      if (inuse.firstElementChild === true) {
-        importSpecifiers.push(
-          t.importSpecifier(
-            firstElementChild,
-            t.identifier("firstElementChild")
-          )
-        );
-      }
+            case "firstElementChild": {
+              importSpecifiers.push(
+                t.importSpecifier(firstElementChild, t.identifier(key))
+              );
+              break;
+            }
 
-      if (inuse.nextElementSibling === true) {
-        importSpecifiers.push(
-          t.importSpecifier(
-            nextElementSibling,
-            t.identifier("nextElementSibling")
-          )
-        );
+            case "nextElementSibling": {
+              importSpecifiers.push(
+                t.importSpecifier(nextElementSibling, t.identifier(key))
+              );
+              break;
+            }
+          }
+        }
       }
 
       let addedImport = false;

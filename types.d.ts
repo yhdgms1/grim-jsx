@@ -9,6 +9,11 @@ interface Options {
    * @default false
    */
   enableStringMode?: boolean;
+  /**
+   * Enables the possibility to use comments to configure the compiler.
+   * @default undefined
+   */
+  enableCommentOptions?: boolean;
 }
 
 /**

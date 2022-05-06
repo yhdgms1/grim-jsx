@@ -1,2 +1,7 @@
+import { template as _tmpl } from "grim-jsx/runtime.js";
 const people = ["Artem", "Ivan", "Arina", "Roman", "Kenzi"];
-const element = `<div><h1>Hello!</h1><ul>${people.map(person => `<li>${person}</li>`).join("")}</ul></div>`;
+let str = `<div><h1>Hello!</h1><ul>${people.map(person => `<li>${person}</li>`).join("")}</ul></div>`;
+
+const node = _tmpl(`<div></div>`);
+
+str = `<div>It should be a string</div>`;
