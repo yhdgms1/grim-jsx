@@ -114,11 +114,6 @@ const compileJSXPlugin = (babel, options) => {
             for (const comment of leadingComments) {
               const { value, loc } = comment;
 
-              /**
-               * The Top Line as all about global-file options
-               */
-              if (loc.start.line === 1) continue;
-
               if (value.includes("@enableStringMode")) {
                 opts.enableStringMode = true;
               }
