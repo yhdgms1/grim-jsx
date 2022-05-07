@@ -101,8 +101,6 @@ const compileJSXPlugin = (babel, options) => {
         const opts = { ...options };
 
         const extendOptions = () => {
-          if (!options.enableCommentOptions) return;
-
           /**
            * Path with comments
            */
@@ -135,7 +133,7 @@ const compileJSXPlugin = (babel, options) => {
         /**
          * Try's to find the commend nodes with options
          */
-        extendOptions();
+        if (options.enableCommentOptions) extendOptions();
 
         /**
          * @param {typeof root.children[number]} node
@@ -144,20 +142,31 @@ const compileJSXPlugin = (babel, options) => {
           if (t.isJSXText(node)) {
             const value = node.value.trim();
 
-            value !== "" && template.push(value);
+            if (value !== "") {
+              /**
+               * Template Literals should be escaped
+               */
+              template.push(value.replaceAll("`", "\\`"));
+            }
           } else if (t.isJSXExpressionContainer(node)) {
-            const expression = node.expression;
+            const { expression } = node;
 
-            if (!t.isJSXEmptyExpression(expression)) {
+            if (t.isJSXEmptyExpression(expression)) {
+              /**
+               * Empty expression will be taken as a string
+               */
+              template.push(`{}`);
+            } else {
               template.push(expression);
             }
           } else if (t.isJSXElement(node)) {
             let tagName = getJSXElementName(node.openingElement.name);
 
+            template.push(`<`);
+
             if (typeof tagName === "string") {
-              template.push(`<${tagName}`);
+              template.push(tagName);
             } else {
-              template.push(`<`);
               template.push(tagName.expression);
             }
 
@@ -167,9 +176,13 @@ const compileJSXPlugin = (babel, options) => {
 
                 if (name === "ref" && t.isJSXExpressionContainer(attr.value)) {
                   if (opts.enableStringMode) {
-                    throw path.buildCodeFrameError(
-                      "Grim: Using ref's in string mode is impossible"
+                    const error = path.scope.hub.buildError(
+                      node,
+                      "Using ref's in string mode is impossible",
+                      Error
                     );
+
+                    throw error;
                   }
 
                   const { expression } = attr.value;
