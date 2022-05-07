@@ -1,4 +1,10 @@
-import SyntaxJSX from "@babel/plugin-syntax-jsx";
+import { im } from "@artemis69/im";
+import syntaxJSX from "@babel/plugin-syntax-jsx";
+
+/**
+ * It is a fix for the 'default' export being an object with 'default' key.
+ */
+const SyntaxJSX = im(syntaxJSX);
 
 import { setBabel } from "./babel";
 

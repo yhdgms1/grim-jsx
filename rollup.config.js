@@ -9,7 +9,7 @@ const config = {
     format: "esm",
   },
   treeshake: true,
-  external: ["@babel/core", "@babel/types"],
+  external: ["@babel/core", "@babel/types", "@babel/plugin-syntax-jsx"],
   plugins: [resolve(), commonjs()],
 };
 

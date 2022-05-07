@@ -74,7 +74,7 @@ async function main() {
           });
 
           if (!transformResult) {
-            throw new Error(`Could not transform ${entry}.`);
+            return console.log(`Could not transform ${entry}.`);
           }
 
           const { code: result } = transformResult;
