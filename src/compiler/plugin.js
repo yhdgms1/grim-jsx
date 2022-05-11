@@ -52,9 +52,7 @@ const compileJSXPlugin = (babel, options) => {
     inherits: SyntaxJSX,
     visitor: {
       JSXFragment(path) {
-        throw path.buildCodeFrameError(
-          "Grim: Transforming JSXFramgents is not supported"
-        );
+        throw path.buildCodeFrameError("JSXFragment is not supported.");
       },
       Program(path) {
         /**

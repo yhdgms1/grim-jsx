@@ -98,9 +98,9 @@ const article = (() => {
 
 So you can use the button reference in your code.
 
-### No Runtime
+### String Mode
 
-But what if you just want Grim to compile JSX into strings and not to bring it's own runtime? You can use the `enableStringMode` option.
+But what if you just want Grim to compile JSX into strings and not to use DOM? You can use the `enableStringMode` option.
 Within this mode, this code:
 
 ```jsx
@@ -118,7 +118,28 @@ Will be compiled to:
 
 ```jsx
 const people = ["Artem", "Ivan", "Arina", "Roman", "Kenzi"];
-const element = `<div><h1>Hello!</h1><ul>${people.map((person) => `<li>${person}</li>`).join("")}</ul></div>`;
+const element = `<div><h1>Hello!</h1><ul>${people
+  .map((person) => `<li>${person}</li>`)
+  .join("")}</ul></div>`;
 ```
 
 However, [Refs](#refs) will not work in this mode.
+
+### JSX Fragments
+
+What's the deal with fragments? Well, the main reason is that it may be unclear what output is going to be.
+
+```jsx
+const usingFragment = (
+  <>
+    {/**
+     * This is a comment that will not be visible to the compiler for some reason which I will not explain here.
+     * @enableStringMode
+     */}
+    <p>This is a node and it should be transformed.</p>
+    This is text and it should not.
+  </>
+);
+```
+
+There are some problems to solve with fragments, and it will be much easier to use Array.
