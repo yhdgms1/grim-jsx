@@ -143,3 +143,8 @@ const usingFragment = (
 ```
 
 There are some problems to solve with fragments, and it will be much easier to use Array.
+
+### Runtime Inlining
+
+If you could not use the imports, then you could use `inlineRuntime` option. Then Grim's runtime will be inlined into you'r code.
+When used with `importSource` option, the _Grim's_ runtime will be used, not one that specified in the `importSource`.

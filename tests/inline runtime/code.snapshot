@@ -1,0 +1,14 @@
+/*options: {"inlineRuntime":true}*/
+
+let cmp = (props) => {
+  const { children, className, ...attrs } = props;
+
+  // Ref's is not used there because wee need to know that only necessary runtime is inlined
+
+  return (
+    <div class={className} {...attrs}>
+      <p>{children}</p>
+      <button type="button">Inc</button>
+    </div>
+  )
+};

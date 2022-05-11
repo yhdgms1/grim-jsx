@@ -34,10 +34,29 @@ const compileJSXPlugin = (babel, options) => {
   let nextElementSibling = t.identifier("grim_$nes");
 
   let importSource = "grim-jsx/dist/runtime.js";
+  let inlineRuntime = false;
+
+  /** @type {null | babel.types.Statement[]} */
+  let runtime = null;
 
   if (typeof options === "object" && !Array.isArray(options)) {
     if (typeof options.importSource === "string") {
       importSource = options.importSource;
+    }
+
+    if (typeof options.inlineRuntime === "boolean") {
+      inlineRuntime = options.inlineRuntime;
+
+      if (inlineRuntime) {
+        // @ts-expect-error - Rollup will replace it with a string.
+        const ast = babel.parseSync(RUNTIME);
+
+        if (!ast) {
+          throw new Error(`Runtime could not be parsed.`);
+        }
+
+        runtime = ast.program.body;
+      }
     }
   }
 
@@ -338,64 +357,110 @@ const compileJSXPlugin = (babel, options) => {
     post(file) {
       const { body } = file.ast.program;
 
-      /** @type {babel.types.ImportSpecifier[]} */
-      const importSpecifiers = [];
-
-      for (const [key, value] of Object.entries(inuse)) {
-        if (value) {
-          switch (key) {
-            case "template": {
-              importSpecifiers.push(
-                t.importSpecifier(templateFunctionName, t.identifier(key))
-              );
-              break;
-            }
-
-            case "spread": {
-              importSpecifiers.push(
-                t.importSpecifier(spreadFunctionName, t.identifier(key))
-              );
-              break;
-            }
-
-            case "firstElementChild": {
-              importSpecifiers.push(
-                t.importSpecifier(firstElementChild, t.identifier(key))
-              );
-              break;
-            }
-
-            case "nextElementSibling": {
-              importSpecifiers.push(
-                t.importSpecifier(nextElementSibling, t.identifier(key))
-              );
-              break;
-            }
-          }
-        }
-      }
-
-      let addedImport = false;
-
-      for (const child of body) {
-        if (t.isImportDeclaration(child)) {
-          if (t.isStringLiteral(child.source)) {
-            if (child.source.value === importSource) {
-              child.specifiers.push(...importSpecifiers);
-
-              addedImport = true;
-              break;
-            }
-          }
-        }
-      }
-
       const noImports = Object.values(inuse).every((value) => value === false);
 
-      if (!noImports && !addedImport) {
-        body.unshift(
-          t.importDeclaration(importSpecifiers, t.stringLiteral(importSource))
-        );
+      const produceImports = () => {
+        /** @type {babel.types.ImportSpecifier[]} */
+        const importSpecifiers = [];
+
+        for (const [key, value] of Object.entries(inuse)) {
+          if (value) {
+            switch (key) {
+              case "template": {
+                importSpecifiers.push(
+                  t.importSpecifier(templateFunctionName, t.identifier(key))
+                );
+                break;
+              }
+
+              case "spread": {
+                importSpecifiers.push(
+                  t.importSpecifier(spreadFunctionName, t.identifier(key))
+                );
+                break;
+              }
+
+              case "firstElementChild": {
+                importSpecifiers.push(
+                  t.importSpecifier(firstElementChild, t.identifier(key))
+                );
+                break;
+              }
+
+              case "nextElementSibling": {
+                importSpecifiers.push(
+                  t.importSpecifier(nextElementSibling, t.identifier(key))
+                );
+                break;
+              }
+            }
+          }
+        }
+
+        let addedImport = false;
+
+        for (const child of body) {
+          if (t.isImportDeclaration(child)) {
+            if (t.isStringLiteral(child.source)) {
+              if (child.source.value === importSource) {
+                child.specifiers.push(...importSpecifiers);
+
+                addedImport = true;
+                break;
+              }
+            }
+          }
+        }
+
+        if (!noImports && !addedImport) {
+          body.unshift(
+            t.importDeclaration(importSpecifiers, t.stringLiteral(importSource))
+          );
+        }
+      };
+
+      const produceInlining = () => {
+        if (!runtime) throw new Error("Runtime is not defined");
+
+        for (const declaration of runtime) {
+          if (!t.isVariableDeclaration(declaration)) return;
+
+          const name = declaration.declarations[0].id;
+
+          if (!t.isIdentifier(name)) return;
+
+          let push = false;
+
+          if (name.name === "template" && inuse.template) {
+            name.name = templateFunctionName.name;
+            push = true;
+          }
+
+          if (name.name === "spread" && inuse.spread) {
+            name.name = spreadFunctionName.name;
+            push = true;
+          }
+
+          if (name.name === "firstElementChild" && inuse.firstElementChild) {
+            name.name = firstElementChild.name;
+            push = true;
+          }
+
+          if (name.name === "nextElementSibling" && inuse.nextElementSibling) {
+            name.name = nextElementSibling.name;
+            push = true;
+          }
+
+          if (push) {
+            body.unshift(declaration);
+          }
+        }
+      };
+
+      if (inlineRuntime) {
+        produceInlining();
+      } else {
+        produceImports();
       }
     },
   };

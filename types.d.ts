@@ -14,6 +14,12 @@ interface Options {
    * @default undefined
    */
   enableCommentOptions?: boolean;
+  /**
+   * In case the imports cannot be used, inline runtime.
+   * Does NOT work in pair with `importSource`
+   * @default undefined
+   */
+  inlineRuntime?: boolean;
 }
 
 /**
