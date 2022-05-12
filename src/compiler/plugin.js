@@ -40,16 +40,16 @@ const compileJSXPlugin = (babel, options) => {
   let runtime = null;
 
   if (typeof options === "object" && !Array.isArray(options)) {
-    if (typeof options.importSource === "string") {
+    if ("importSource" in options && options.importSource !== undefined) {
       importSource = options.importSource;
     }
 
-    if (typeof options.inlineRuntime === "boolean") {
+    if ("inlineRuntime" in options && options.inlineRuntime !== undefined) {
       inlineRuntime = options.inlineRuntime;
 
       if (inlineRuntime) {
         // @ts-expect-error - Rollup will replace it with a string.
-        const ast = babel.parseSync(RUNTIME);
+        const ast = babel.parseSync(options.customRuntime || RUNTIME);
 
         if (!ast) {
           throw new Error(`Runtime could not be parsed.`);
