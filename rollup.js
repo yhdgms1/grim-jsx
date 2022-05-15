@@ -29,10 +29,6 @@ async function main() {
   const plugin = await rollup(
     defineConfig({
       input: "src/index.js",
-      output: {
-        file: "dist/bundle.js",
-        format: "esm",
-      },
       treeshake: true,
       external: ["@babel/core", "@babel/types", "@babel/plugin-syntax-jsx"],
       plugins: [
