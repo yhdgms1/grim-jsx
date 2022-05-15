@@ -31,11 +31,6 @@ const compileJSXPlugin = (babel, options) => {
 
   const { types: t } = babel;
 
-  let templateFunctionName = t.identifier("grim_$t");
-  let spreadFunctionName = t.identifier("grim_$s");
-  let firstElementChild = t.identifier("grim_$fec");
-  let nextElementSibling = t.identifier("grim_$nes");
-
   const { inuse } = shared();
 
   return {
@@ -46,10 +41,10 @@ const compileJSXPlugin = (babel, options) => {
         throw path.buildCodeFrameError("JSXFragment is not supported.");
       },
       Program(path) {
-        templateFunctionName = path.scope.generateUidIdentifier("tmpl");
-        firstElementChild = path.scope.generateUidIdentifier("fec");
-        nextElementSibling = path.scope.generateUidIdentifier("nes");
-        spreadFunctionName = path.scope.generateUidIdentifier("sprd");
+        shared.set("templateFunctionName", path.scope.generateUidIdentifier("tmpl").name);
+        shared.set("firstElementChild", path.scope.generateUidIdentifier("fec").name);
+        shared.set("nextElementSibling", path.scope.generateUidIdentifier("nes").name);
+        shared.set("spreadFunctionName", path.scope.generateUidIdentifier("sprd").name);
       },
       JSXElement(path) {
         const { parent, node } = path;
@@ -62,6 +57,16 @@ const compileJSXPlugin = (babel, options) => {
         ) {
           return;
         }
+
+        const {
+          spreadFunctionName: sprd,
+          firstElementChild: fec,
+          nextElementSibling: nes,
+        } = shared();
+
+        const spreadFunctionName = t.identifier(sprd);
+        const firstElementChild = t.identifier(fec);
+        const nextElementSibling = t.identifier(nes);
 
         const root = node;
 
@@ -161,14 +166,10 @@ const compileJSXPlugin = (babel, options) => {
 
                   const { expression } = attr.value;
 
-                  if (
-                    t.isIdentifier(expression) ||
-                    t.isMemberExpression(expression)
-                  ) {
+                  if (t.isIdentifier(expression) || t.isMemberExpression(expression)) {
                     const right =
                       current.length > 0
-                        ? createMemberExpression(templateName, ...current) ??
-                          templateName
+                        ? createMemberExpression(templateName, ...current) ?? templateName
                         : templateName;
 
                     for (const item of current) {
@@ -284,9 +285,10 @@ const compileJSXPlugin = (babel, options) => {
         } else {
           inuse.template = true;
 
-          const templateCall = t.callExpression(templateFunctionName, [
-            template.template,
-          ]);
+          const templateCall = t.callExpression(
+            t.identifier(shared().templateFunctionName),
+            [template.template]
+          );
 
           if (isSVG) {
             template.unshift(`<svg>`);
@@ -321,6 +323,13 @@ const compileJSXPlugin = (babel, options) => {
 
       const noImports = Object.values(inuse).every((value) => value === false);
 
+      const {
+        templateFunctionName,
+        spreadFunctionName,
+        firstElementChild,
+        nextElementSibling,
+      } = shared();
+
       const produceImports = () => {
         /** @type {babel.types.ImportSpecifier[]} */
         const importSpecifiers = [];
@@ -330,28 +339,28 @@ const compileJSXPlugin = (babel, options) => {
             switch (key) {
               case "template": {
                 importSpecifiers.push(
-                  t.importSpecifier(templateFunctionName, t.identifier(key))
+                  t.importSpecifier(t.identifier(templateFunctionName), t.identifier(key))
                 );
                 break;
               }
 
               case "spread": {
                 importSpecifiers.push(
-                  t.importSpecifier(spreadFunctionName, t.identifier(key))
+                  t.importSpecifier(t.identifier(spreadFunctionName), t.identifier(key))
                 );
                 break;
               }
 
               case "firstElementChild": {
                 importSpecifiers.push(
-                  t.importSpecifier(firstElementChild, t.identifier(key))
+                  t.importSpecifier(t.identifier(firstElementChild), t.identifier(key))
                 );
                 break;
               }
 
               case "nextElementSibling": {
                 importSpecifiers.push(
-                  t.importSpecifier(nextElementSibling, t.identifier(key))
+                  t.importSpecifier(t.identifier(nextElementSibling), t.identifier(key))
                 );
                 break;
               }
@@ -376,10 +385,7 @@ const compileJSXPlugin = (babel, options) => {
 
         if (!noImports && !addedImport) {
           body.unshift(
-            t.importDeclaration(
-              importSpecifiers,
-              t.stringLiteral(shared().importSource)
-            )
+            t.importDeclaration(importSpecifiers, t.stringLiteral(shared().importSource))
           );
         }
       };
@@ -401,22 +407,22 @@ const compileJSXPlugin = (babel, options) => {
           let push = false;
 
           if (name.name === "template" && inuse.template) {
-            name.name = templateFunctionName.name;
+            name.name = templateFunctionName;
             push = true;
           }
 
           if (name.name === "spread" && inuse.spread) {
-            name.name = spreadFunctionName.name;
+            name.name = spreadFunctionName;
             push = true;
           }
 
           if (name.name === "firstElementChild" && inuse.firstElementChild) {
-            name.name = firstElementChild.name;
+            name.name = firstElementChild;
             push = true;
           }
 
           if (name.name === "nextElementSibling" && inuse.nextElementSibling) {
-            name.name = nextElementSibling.name;
+            name.name = nextElementSibling;
             push = true;
           }
 

@@ -14,6 +14,11 @@ const shared = Osake({
     nextElementSibling: false,
     spread: false,
   },
+
+  templateFunctionName: "grim_$t",
+  spreadFunctionName: "grim_$s",
+  firstElementChild: "grim_$fec",
+  nextElementSibling: "grim_$nes",
 });
 
 export { shared };
