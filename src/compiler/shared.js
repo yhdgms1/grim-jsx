@@ -1,11 +1,19 @@
 import { Osake } from "osake";
 
-/** @type {babel} */
-// @ts-ignore
-const _babel = {};
-
 const shared = Osake({
-  babel: _babel,
+  babel: /** @type {babel} */ ({}),
+
+  importSource: "grim-jsx/dist/runtime.js",
+
+  inlineRuntime: false,
+  runtime: /** @type {babel.types.Statement[]} */ ([]),
+
+  inuse: {
+    template: false,
+    firstElementChild: false,
+    nextElementSibling: false,
+    spread: false,
+  },
 });
 
 export { shared };

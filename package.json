@@ -38,7 +38,7 @@
   "dependencies": {
     "@artemis69/im": "^0.2.0",
     "@babel/plugin-syntax-jsx": "^7.16.7",
-    "osake": "^0.1.0"
+    "osake": "^0.2.0"
   },
   "types": "./types.d.ts"
 }

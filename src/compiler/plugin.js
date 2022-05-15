@@ -6,6 +6,8 @@ import syntaxJSX from "@babel/plugin-syntax-jsx";
  */
 const SyntaxJSX = im(syntaxJSX);
 
+import { createPre } from "./transforms";
+
 import { shared } from "./shared";
 
 import {
@@ -24,6 +26,7 @@ import {
  * @returns {babel.PluginObj}
  */
 const compileJSXPlugin = (babel, options) => {
+  shared.reset();
   shared.set("babel", babel);
 
   const { types: t } = babel;
@@ -33,57 +36,16 @@ const compileJSXPlugin = (babel, options) => {
   let firstElementChild = t.identifier("grim_$fec");
   let nextElementSibling = t.identifier("grim_$nes");
 
-  let importSource = "grim-jsx/dist/runtime.js";
-  let inlineRuntime = false;
-
-  /** @type {null | babel.types.Statement[]} */
-  let runtime = null;
-
-  if (typeof options === "object" && !Array.isArray(options)) {
-    if ("importSource" in options && options.importSource !== undefined) {
-      importSource = options.importSource;
-    }
-
-    if ("inlineRuntime" in options && options.inlineRuntime !== undefined) {
-      inlineRuntime = options.inlineRuntime;
-
-      if (inlineRuntime) {
-        // @ts-expect-error - Rollup will replace it with a string.
-        const ast = babel.parseSync(options.customRuntime || RUNTIME);
-
-        if (!ast) {
-          throw new Error(`Runtime could not be parsed.`);
-        }
-
-        runtime = ast.program.body;
-      }
-    }
-  }
-
-  let inuse = {
-    template: false,
-    firstElementChild: false,
-    nextElementSibling: false,
-    spread: false,
-  };
+  const { inuse } = shared();
 
   return {
     inherits: SyntaxJSX,
+    pre: createPre(options),
     visitor: {
       JSXFragment(path) {
         throw path.buildCodeFrameError("JSXFragment is not supported.");
       },
       Program(path) {
-        /**
-         * Clean up
-         */
-        inuse = {
-          template: false,
-          firstElementChild: false,
-          nextElementSibling: false,
-          spread: false,
-        };
-
         templateFunctionName = path.scope.generateUidIdentifier("tmpl");
         firstElementChild = path.scope.generateUidIdentifier("fec");
         nextElementSibling = path.scope.generateUidIdentifier("nes");
@@ -402,7 +364,7 @@ const compileJSXPlugin = (babel, options) => {
         for (const child of body) {
           if (t.isImportDeclaration(child)) {
             if (t.isStringLiteral(child.source)) {
-              if (child.source.value === importSource) {
+              if (child.source.value === shared().importSource) {
                 child.specifiers.push(...importSpecifiers);
 
                 addedImport = true;
@@ -414,13 +376,20 @@ const compileJSXPlugin = (babel, options) => {
 
         if (!noImports && !addedImport) {
           body.unshift(
-            t.importDeclaration(importSpecifiers, t.stringLiteral(importSource))
+            t.importDeclaration(
+              importSpecifiers,
+              t.stringLiteral(shared().importSource)
+            )
           );
         }
       };
 
       const produceInlining = () => {
-        if (!runtime) throw new Error("Runtime is not defined");
+        const { runtime } = shared();
+
+        if (runtime.length === 0) {
+          throw new Error("Runtime is not defined");
+        }
 
         for (const declaration of runtime) {
           if (!t.isVariableDeclaration(declaration)) return;
@@ -457,7 +426,7 @@ const compileJSXPlugin = (babel, options) => {
         }
       };
 
-      if (inlineRuntime) {
+      if (shared().inlineRuntime) {
         produceInlining();
       } else {
         produceImports();

@@ -6,4 +6,5 @@ export { getJSXElementName } from "./get-jsx-element-name";
 export { getAttributeName } from "./get-attribute-name";
 export { jsxMemberExpressionToMemberExpression } from "./jsx-member-expression-to-member-expression";
 export { createTemplateLiteralBuilder } from "./template-literal-builder";
+export { isObject } from "./is-object";
 export * as constants from "./constants";
