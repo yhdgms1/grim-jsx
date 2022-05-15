@@ -6,7 +6,7 @@ import syntaxJSX from "@babel/plugin-syntax-jsx";
  */
 const SyntaxJSX = im(syntaxJSX);
 
-import { setBabel } from "./babel";
+import { shared } from "./shared";
 
 import {
   objectExpressionToAttribute,
@@ -24,7 +24,7 @@ import {
  * @returns {babel.PluginObj}
  */
 const compileJSXPlugin = (babel, options) => {
-  setBabel(babel);
+  shared.set("babel", babel);
 
   const { types: t } = babel;
 

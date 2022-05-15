@@ -1,6 +1,6 @@
 {
   "name": "grim-jsx",
-  "version": "0.11.0",
+  "version": "0.11.1",
   "description": "Compiling JSX to produce grim static templates",
   "type": "module",
   "scripts": {
@@ -37,7 +37,8 @@
   },
   "dependencies": {
     "@artemis69/im": "^0.2.0",
-    "@babel/plugin-syntax-jsx": "^7.16.7"
+    "@babel/plugin-syntax-jsx": "^7.16.7",
+    "osake": "^0.1.0"
   },
   "types": "./types.d.ts"
 }
