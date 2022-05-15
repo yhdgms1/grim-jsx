@@ -5,10 +5,7 @@ import { jsxMemberExpressionToMemberExpression } from "./jsx-member-expression-t
 const createTemplateLiteralBuilder = () => {
   const { types: t } = shared().babel;
 
-  const tl = t.templateLiteral(
-    [t.templateElement({ raw: "", cooked: "" })],
-    []
-  );
+  const tl = t.templateLiteral([t.templateElement({ raw: "", cooked: "" })], []);
 
   /**
    * The unshift method works only with strings.

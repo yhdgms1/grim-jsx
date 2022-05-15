@@ -5,6 +5,9 @@ const shared = Osake({
 
   importSource: "grim-jsx/dist/runtime.js",
 
+  enableCommentOptions: false,
+  enableStringMode: false,
+
   inlineRuntime: false,
   runtime: /** @type {babel.types.Statement[]} */ ([]),
 
