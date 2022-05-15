@@ -1,11 +1,11 @@
-import { getBabel } from "../babel";
+import { shared } from "../shared";
 
 /**
  * @param {babel.types.Identifier[]} parts
  * @returns {babel.types.MemberExpression | null}
  */
 const createMemberExpression = (...parts) => {
-  const { types: t } = getBabel();
+  const { types: t } = shared().babel;
 
   let current = null;
 

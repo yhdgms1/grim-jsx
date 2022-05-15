@@ -10,7 +10,6 @@ const escaped = {
 /**
  * @param {string} html
  */
-const escapeHTML = (html) =>
-  html.replace(/["'&<>]/g, (match) => escaped[match]);
+const escapeHTML = (html) => html.replace(/["'&<>]/g, (match) => escaped[match]);
 
 export { escapeHTML };

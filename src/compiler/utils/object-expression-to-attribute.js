@@ -1,10 +1,10 @@
-import { getBabel } from "../babel";
+import { shared } from "../shared";
 
 /**
  * @param {babel.types.ObjectProperty} p
  */
 const getKey = (p) => {
-  const { types: t } = getBabel();
+  const { types: t } = shared().babel;
 
   if (p.computed) {
     /**
@@ -27,7 +27,7 @@ const getKey = (p) => {
  * @param {babel.types.ObjectProperty} p
  */
 const getValue = (p) => {
-  const { types: t } = getBabel();
+  const { types: t } = shared().babel;
 
   if (t.isStringLiteral(p.value)) {
     return p.value.value;
@@ -42,7 +42,7 @@ const getValue = (p) => {
  * @param {babel.types.ObjectExpression} ex
  */
 const objectExpressionToAttribute = (ex) => {
-  const { types: t } = getBabel();
+  const { types: t } = shared().babel;
 
   const properties = ex.properties;
 
