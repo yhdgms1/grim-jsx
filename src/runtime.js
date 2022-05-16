@@ -7,7 +7,6 @@ export const template = (html, isSVG) => {
   t.innerHTML = html;
 
   let node = t.content.firstChild;
-  // @ts-ignore This will never be null
   if (isSVG) node = node.firstChild;
 
   return node;
@@ -18,10 +17,10 @@ export const nextElementSibling = "nextElementSibling";
 
 /**
  * @param {object} props An object with properties to be set on the element.
- * @param {boolean} [attr] States that spread function is used not for attribute spreading, but for property spreading.
+ * @param {boolean} [attr]
  */
 export const spread = (props, attr) => {
   return Object.entries(props)
-    .map(([key, value]) => (attr ? `${key}:${value};` : `${key}="${value}"`))
+    .map(([key, value]) => value == null ? '' : (attr ? `${key}:${value};` : `${key}="${value}"`))
     .join(" ");
 };
