@@ -17,7 +17,7 @@ import {
 function JSXElement(path) {
   const { parent, node } = path;
 
-  const { babel, enableCommentOptions, inuse } = shared();
+  const { babel, enableCommentOptions, inuse, programPath } = shared();
   const { types: t } = babel;
 
   if (
@@ -51,7 +51,8 @@ function JSXElement(path) {
 
   const template = createTemplateLiteralBuilder();
 
-  let templateName = t.identifier("tmpl");
+  let globalTemplateName = (programPath || path).scope.generateUidIdentifier("tmpl");
+  let templateName = (programPath || path).scope.generateUidIdentifier("el");
 
   const opts = { enableStringMode: shared().enableStringMode };
 
@@ -143,7 +144,7 @@ function JSXElement(path) {
             if (t.isIdentifier(expression) || t.isMemberExpression(expression)) {
               const right =
                 current.length > 0
-                  ? createMemberExpression(templateName, ...current) ?? templateName
+                  ? createMemberExpression(templateName, ...current) || templateName
                   : templateName;
 
               for (const item of current) {
@@ -173,7 +174,7 @@ function JSXElement(path) {
 
               template.push(insertAttrubute(name, value));
             } else if (t.isJSXExpressionContainer(attr.value)) {
-              const expression = attr.value.expression;
+              const { expression } = attr.value;
 
               if (t.isObjectExpression(expression)) {
                 const attr = objectExpressionToAttribute(expression);
@@ -276,24 +277,61 @@ function JSXElement(path) {
       template.push(`</svg>`);
     }
 
-    if (expressions.length > 0) {
-      path.replaceWith(
-        t.callExpression(
-          t.arrowFunctionExpression(
-            [],
-            t.blockStatement([
-              t.variableDeclaration("const", [
-                t.variableDeclarator(templateName, templateCall),
-              ]),
-              ...expressions,
-              t.returnStatement(templateName),
-            ])
-          ),
-          []
-        )
+    /**
+     * We are lucky today, because this is just an _static_ html.
+     * TemplateLiteral does not have any expressions, so template could be extracled
+     */
+    if (programPath && template.template.quasis.length === 1) {
+      programPath.node.body.unshift(
+        t.variableDeclaration("let", [
+          t.variableDeclarator(globalTemplateName, templateCall),
+        ])
       );
+
+      const call = t.callExpression(
+        t.memberExpression(globalTemplateName, t.identifier("cloneNode")),
+        [t.booleanLiteral(true)]
+      );
+
+      if (expressions.length > 0) {
+        path.replaceWith(
+          t.callExpression(
+            t.arrowFunctionExpression(
+              [],
+              t.blockStatement([
+                t.variableDeclaration("const", [
+                  t.variableDeclarator(templateName, call),
+                ]),
+                ...expressions,
+                t.returnStatement(templateName),
+              ])
+            ),
+            []
+          )
+        );
+      } else {
+        path.replaceWith(call);
+      }
     } else {
-      path.replaceWith(templateCall);
+      if (expressions.length > 0) {
+        path.replaceWith(
+          t.callExpression(
+            t.arrowFunctionExpression(
+              [],
+              t.blockStatement([
+                t.variableDeclaration("const", [
+                  t.variableDeclarator(templateName, templateCall),
+                ]),
+                ...expressions,
+                t.returnStatement(templateName),
+              ])
+            ),
+            []
+          )
+        );
+      } else {
+        path.replaceWith(templateCall);
+      }
     }
   }
 }

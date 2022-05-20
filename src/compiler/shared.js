@@ -22,6 +22,8 @@ const shared = Osake({
   spreadFunctionName: "grim_$s",
   firstElementChild: "grim_$fec",
   nextElementSibling: "grim_$nes",
+
+  programPath: /** @type {babel.NodePath<babel.types.Program> | null} */ (null),
 });
 
 export { shared };

@@ -52,6 +52,8 @@ const createPre = (options) => {
         }
       }
     }
+
+    shared.set("programPath", file.path);
   }
 
   return pre;
