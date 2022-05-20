@@ -1,5 +1,5 @@
 const _sprd = (props, attr) => {
-  return Object.entries(props).map(([key, value]) => attr ? `${key}:${value};` : `${key}="${value}"`).join(" ");
+  return Object.entries(props).map(([key, value]) => value == null ? '' : attr ? `${key}:${value};` : `${key}="${value}"`).join(" ");
 };
 
 const _tmpl = (html, isSVG) => {

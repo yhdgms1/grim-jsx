@@ -93,10 +93,13 @@ function JSXElement(path) {
       const value = node.value.trim();
 
       if (value !== "") {
-        /**
-         * Template Literals should be escaped
-         */
-        template.push(value.replaceAll("`", "\\`"));
+        let str = value;
+
+        for (const [s, r] of [["`", "\\`"]]) {
+          str = str.replaceAll(s, r);
+        }
+
+        template.push(str);
       }
     } else if (t.isJSXExpressionContainer(node)) {
       const { expression } = node;
@@ -159,7 +162,16 @@ function JSXElement(path) {
             }
           } else {
             if (t.isStringLiteral(attr.value)) {
-              template.push(insertAttrubute(name, attr.value.value));
+              let { value } = attr.value;
+
+              for (const [s, r] of [
+                ["`", "\\`"],
+                ["${", "\\${"],
+              ]) {
+                value = value.replaceAll(s, r);
+              }
+
+              template.push(insertAttrubute(name, value));
             } else if (t.isJSXExpressionContainer(attr.value)) {
               const expression = attr.value.expression;
 
