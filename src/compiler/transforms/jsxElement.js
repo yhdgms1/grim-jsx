@@ -51,7 +51,6 @@ function JSXElement(path) {
 
   const template = createTemplateLiteralBuilder();
 
-  let globalTemplateName = (programPath || path).scope.generateUidIdentifier("tmpl");
   let templateName = (programPath || path).scope.generateUidIdentifier("el");
 
   const opts = { enableStringMode: shared().enableStringMode };
@@ -282,14 +281,32 @@ function JSXElement(path) {
      * TemplateLiteral does not have any expressions, so template could be extracled
      */
     if (programPath && template.template.quasis.length === 1) {
-      programPath.node.body.unshift(
-        t.variableDeclaration("let", [
-          t.variableDeclarator(globalTemplateName, templateCall),
-        ])
-      );
+      const current_raw = template.template.quasis[0].value.raw;
+      const { sharedNodes } = shared();
+
+      /** @type {babel.types.VariableDeclaration | null} */
+      let decl = null;
+
+      if (sharedNodes[current_raw]) {
+        decl = sharedNodes[current_raw];
+      } else {
+        decl = t.variableDeclaration("let", [
+          t.variableDeclarator(
+            (programPath || path).scope.generateUidIdentifier("tmpl"),
+            templateCall
+          ),
+        ]);
+
+        programPath.node.body.unshift(decl);
+
+        shared().sharedNodes[current_raw] = decl;
+      }
+
+      const object = decl.declarations[0].id;
 
       const call = t.callExpression(
-        t.memberExpression(globalTemplateName, t.identifier("cloneNode")),
+        // @ts-ignore - We create these declarations and know it is Identifier
+        t.memberExpression(object, t.identifier("cloneNode")),
         [t.booleanLiteral(true)]
       );
 
