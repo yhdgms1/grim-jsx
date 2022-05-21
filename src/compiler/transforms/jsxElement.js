@@ -278,7 +278,7 @@ function JSXElement(path) {
 
     /**
      * We are lucky today, because this is just an _static_ html.
-     * TemplateLiteral does not have any expressions, so template could be extracled
+     * TemplateLiteral does not have any expressions, so template could be extracted
      */
     if (programPath && template.template.quasis.length === 1) {
       const current_raw = template.template.quasis[0].value.raw;
@@ -287,6 +287,9 @@ function JSXElement(path) {
       /** @type {babel.types.VariableDeclaration | null} */
       let decl = null;
 
+      /**
+       * If there are identical elements, we reuse them
+       */
       if (sharedNodes[current_raw]) {
         decl = sharedNodes[current_raw];
       } else {
