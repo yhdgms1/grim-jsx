@@ -94,17 +94,33 @@ function JSXElement(path) {
    */
   const process = (node) => {
     if (t.isJSXText(node)) {
-      const value = node.value.trim();
+      const { value } = node;
+      let str = value.trim();
 
-      if (value !== "") {
-        let str = value;
+      if (str === "") return;
 
-        for (const [s, r] of [["`", "\\`"]]) {
-          str = str.replaceAll(s, r);
-        }
-
-        template.push(str);
+      for (const [s, r] of [["`", "\\`"]]) {
+        str = str.replaceAll(s, r);
       }
+
+      /**
+       *  `     I am formatting` -> `I am formatting`
+       *  ` I am not`            -> ` I am not`
+       *  `I just retarded     ` -> `I just retarded`
+       *  `I am not `            -> `I am not `
+       */
+
+      if (value[0] === " " && value[1] !== " ") {
+        str = " " + str;
+      }
+
+      let len = value.length;
+
+      if (value[len - 1] === " " && value[len - 2] !== " ") {
+        str += " ";
+      }
+
+      template.push(str);
     } else if (t.isJSXExpressionContainer(node)) {
       const { expression } = node;
 

@@ -1,0 +1,9 @@
+import { template as _template } from "grim-jsx/runtime.js";
+
+_template(`<div>Hello, ${name}</div>`);
+
+_template(`<div>${_this} is gonna lie:</div>`);
+
+_template(`<div>I need you, ${burito__title}</div>`);
+
+_template(`<div> Pizza is not a ${smh}!</div>`);
