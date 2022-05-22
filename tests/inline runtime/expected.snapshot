@@ -2,7 +2,7 @@ const _sprd = (props, attr) => {
   return Object.entries(props).map(([key, value]) => value == null ? '' : attr ? `${key}:${value};` : `${key}="${value}"`).join(" ");
 };
 
-const _tmpl = (html, isSVG) => {
+const _template = (html, isSVG) => {
   const t = document.createElement("template");
   t.innerHTML = html;
   let node = t.content.firstChild;
@@ -16,5 +16,5 @@ let cmp = props => {
     className,
     ...attrs
   } = props;
-  return _tmpl(`<div class="${className}" ${_sprd(attrs)}><p>${children}</p><button type="button">Inc</button></div>`);
+  return _template(`<div class="${className}" ${_sprd(attrs)}><p>${children}</p><button type="button">Inc</button></div>`);
 };
