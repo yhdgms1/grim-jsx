@@ -63,12 +63,13 @@ async function main() {
             plugins: [
               [
                 compileJSXPlugin,
-                options !== null
-                  ? { ...defaultOptions, ...options }
-                  : defaultOptions,
+                options !== null ? { ...defaultOptions, ...options } : defaultOptions,
               ],
             ],
             babelrc: false,
+            browserslistConfigFile: false,
+            configFile: false,
+            highlightCode: false,
             comments: false,
             filename: entry.replaceAll(" ", "_"),
           });
