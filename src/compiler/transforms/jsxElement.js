@@ -8,6 +8,7 @@ import {
   getJSXElementName,
   getAttributeName,
   createTemplateLiteralBuilder,
+  createIIFE,
 } from "../utils";
 
 /**
@@ -305,28 +306,21 @@ function JSXElement(path) {
         shared().sharedNodes[current_raw] = decl;
       }
 
+      /** @type {babel.types.Identifier} */
+      // @ts-ignore - We create these declarations and know it is Identifier
       const object = decl.declarations[0].id;
 
       const call = t.callExpression(
-        // @ts-ignore - We create these declarations and know it is Identifier
         t.memberExpression(object, t.identifier("cloneNode")),
         [t.booleanLiteral(true)]
       );
 
       if (expressions.length > 0) {
         path.replaceWith(
-          t.callExpression(
-            t.arrowFunctionExpression(
-              [],
-              t.blockStatement([
-                t.variableDeclaration("const", [
-                  t.variableDeclarator(templateName, call),
-                ]),
-                ...expressions,
-                t.returnStatement(templateName),
-              ])
-            ),
-            []
+          createIIFE(
+            t.variableDeclaration("let", [t.variableDeclarator(templateName, call)]),
+            ...expressions,
+            t.returnStatement(templateName)
           )
         );
       } else {
@@ -335,18 +329,12 @@ function JSXElement(path) {
     } else {
       if (expressions.length > 0) {
         path.replaceWith(
-          t.callExpression(
-            t.arrowFunctionExpression(
-              [],
-              t.blockStatement([
-                t.variableDeclaration("const", [
-                  t.variableDeclarator(templateName, templateCall),
-                ]),
-                ...expressions,
-                t.returnStatement(templateName),
-              ])
-            ),
-            []
+          createIIFE(
+            t.variableDeclaration("let", [
+              t.variableDeclarator(templateName, templateCall),
+            ]),
+            ...expressions,
+            t.returnStatement(templateName)
           )
         );
       } else {
