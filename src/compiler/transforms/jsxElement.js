@@ -152,6 +152,7 @@ function JSXElement(path) {
 
               /** @type {(babel.types.Identifier | babel.types.MemberExpression)[]} */
               let ph = [...current];
+              let path_changed = false;
 
               const keys = Object.keys(pathStore);
 
@@ -168,6 +169,7 @@ function JSXElement(path) {
                     ph = ph.slice(slc, ph.length);
                     ph = [nd, ...ph];
 
+                    path_changed = true;
                     break;
                   }
                 }
@@ -175,12 +177,11 @@ function JSXElement(path) {
 
               pathStore[curr_path] = expression;
 
-              const right =
-                ph.length === current.length
-                  ? current.length > 0
-                    ? createMemberExpression(templateName, ...current) || templateName
-                    : templateName
-                  : createMemberExpression(...ph) || templateName;
+              const right = path_changed
+                ? createMemberExpression(...ph) || templateName
+                : current.length > 0
+                ? createMemberExpression(templateName, ...current) || templateName
+                : templateName;
 
               for (const item of current) {
                 if (item.name === firstElementChild.name) {
