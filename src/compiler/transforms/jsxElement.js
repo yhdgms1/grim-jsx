@@ -113,6 +113,15 @@ function JSXElement(path) {
          * Empty expression will be taken as a string
          */
         template.push(`{}`);
+      } else if (t.isStringLiteral(expression)) {
+        const { value } = expression;
+
+        /**
+         * Statically injects the string
+         * i.e. `<div>{'hello lol'}</div>` -> `<div>hello lol</div>`
+         */
+
+        template.push(value);
       } else {
         template.push(expression);
       }
