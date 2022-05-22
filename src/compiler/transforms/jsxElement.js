@@ -81,6 +81,9 @@ function JSXElement(path) {
     }
   };
 
+  /** @type {Record<string, babel.types.Identifier | babel.types.MemberExpression>} */
+  const pathsMap = {};
+
   /**
    * Try's to find the commend nodes with options
    */
@@ -142,10 +145,47 @@ function JSXElement(path) {
             const { expression } = attr.value;
 
             if (t.isIdentifier(expression) || t.isMemberExpression(expression)) {
-              const right =
-                current.length > 0
-                  ? createMemberExpression(templateName, ...current) || templateName
-                  : templateName;
+              /** @type {string} */
+              const curr_path =
+                current.length === 0
+                  ? templateName.name
+                  : current.map((i) => i.name).join(".");
+
+              /** @type {(babel.types.Identifier | babel.types.MemberExpression)[]} */
+              let ph = [...current];
+              let path_changed = false;
+
+              const keys = Object.keys(pathsMap);
+
+              /**
+               * Longest paths comes to the end, so we iterate from the end
+               */
+              for (let i = keys.length; i > 0; i--) {
+                const key = keys[i - 1];
+
+                if (curr_path.startsWith(key)) {
+                  const nd = pathsMap[key];
+
+                  if (key !== templateName.name) {
+                    const str = curr_path.substring(0, key.length);
+                    const slc = str.split(".").length;
+
+                    ph = ph.slice(slc, ph.length);
+                    ph = [nd, ...ph];
+
+                    path_changed = true;
+                    break;
+                  }
+                }
+              }
+
+              pathsMap[curr_path] = expression;
+
+              const right = path_changed
+                ? createMemberExpression(...ph) || templateName
+                : current.length > 0
+                ? createMemberExpression(templateName, ...current) || templateName
+                : templateName;
 
               for (const item of current) {
                 if (item.name === firstElementChild.name) {

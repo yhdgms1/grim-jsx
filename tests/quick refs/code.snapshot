@@ -1,0 +1,14 @@
+function App() {
+  let n0, n1, n2;
+
+  return (
+    <ul>
+      <li ref={n0}>0</li>
+      <li>1</li>
+      <li ref={n1}>2</li>
+      <li>3</li>
+      <li>4</li>
+      <li ref={n2}>5</li>
+    </ul>
+  )
+}

@@ -1,7 +1,7 @@
 import { shared } from "../shared";
 
 /**
- * @param {babel.types.Identifier[]} parts
+ * @param {(babel.types.Identifier | babel.types.MemberExpression)[]} parts
  * @returns {babel.types.MemberExpression | null}
  */
 const createMemberExpression = (...parts) => {

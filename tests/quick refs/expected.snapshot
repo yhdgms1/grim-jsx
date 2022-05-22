@@ -1,0 +1,15 @@
+import { template as _template, firstElementChild as _fec, nextElementSibling as _nes } from "grim-jsx/runtime.js";
+
+let _tmpl = _template(`<ul><li>0</li><li>1</li><li>2</li><li>3</li><li>4</li><li>5</li></ul>`);
+
+function App() {
+  let n0, n1, n2;
+  return (() => {
+    let _el = _tmpl.cloneNode(true);
+
+    n0 = _el[_fec];
+    n1 = n0[_nes][_nes];
+    n2 = n1[_nes][_nes][_nes];
+    return _el;
+  })();
+}
