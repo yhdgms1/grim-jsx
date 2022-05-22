@@ -3,7 +3,7 @@ let _template = 'Noodles';
 let eggs;
 
 const list = (() => {
-  const _el = _template2(`<ul><li>${_template}</li><li>Soup</li><li>Rice</li><li>Eggs</li></ul>`);
+  let _el = _template2(`<ul><li>${_template}</li><li>Soup</li><li>Rice</li><li>Eggs</li></ul>`);
 
   eggs = _el[_fec][_nes][_nes][_nes];
   return _el;

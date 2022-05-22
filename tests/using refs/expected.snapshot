@@ -7,7 +7,7 @@ let _tmpl = _template(`<article><h1>Hello!</h1><p>Today we are going to find out
 let button;
 
 const article = (() => {
-  const _el = _tmpl.cloneNode(true);
+  let _el = _tmpl.cloneNode(true);
 
   button = _el[_fec][_nes][_nes];
   return _el;
@@ -16,7 +16,7 @@ const article = (() => {
 let foo;
 
 const footer = (() => {
-  const _el2 = _tmpl2.cloneNode(true);
+  let _el2 = _tmpl2.cloneNode(true);
 
   foo = _el2;
   return _el2;
