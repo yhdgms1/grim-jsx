@@ -1,11 +1,13 @@
-import { template as _tmpl, spread as _sprd } from "grim-jsx/runtime.js";
+import { template as _template, spread as _sprd } from "grim-jsx/runtime.js";
 
-const div = _tmpl(`<div style="color:red;">Hello</div>`);
+let _tmpl = _template(`<div style="color:red;">Hello</div>`);
+
+const div = _tmpl.cloneNode(true);
 
 let key = window.style_key;
 let value = window.style_value();
-const elements = [_tmpl(`<span style="${_sprd({
+const elements = [_template(`<span style="${_sprd({
   [key]: value
-}, true)}">Hello</span>`), _tmpl(`<span style="${_sprd({
+}, true)}">Hello</span>`), _template(`<span style="${_sprd({
   [window.style_key]: window.style_value()
 }, true)}">Hello</span>`)];

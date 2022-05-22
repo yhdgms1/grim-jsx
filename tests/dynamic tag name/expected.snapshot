@@ -1,7 +1,7 @@
-import { template as _tmpl } from "grim-jsx/runtime.js";
+import { template as _template } from "grim-jsx/runtime.js";
 
 const As = props => {
-  const el = _tmpl(`<${props.as}></${props.as}>`);
+  const el = _template(`<${props.as}></${props.as}>`);
 
   return el;
 };

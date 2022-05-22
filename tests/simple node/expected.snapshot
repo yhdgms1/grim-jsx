@@ -1,3 +1,0 @@
-import { template as _tmpl } from "grim-jsx/runtime.js";
-
-const div = _tmpl(`<div style="color: red;">Hello</div>`);

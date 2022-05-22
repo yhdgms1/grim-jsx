@@ -52,6 +52,9 @@ const createPre = (options) => {
         }
       }
     }
+
+    shared.set("programPath", file.path);
+    shared.set("sharedNodes", {});
   }
 
   return pre;

@@ -129,6 +129,8 @@ function post(file) {
   } else {
     produceImports();
   }
+
+  shared.set("sharedNodes", {});
 }
 
 export { post };

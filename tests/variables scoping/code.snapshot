@@ -1,10 +1,10 @@
-let _tmpl = 'Noodles';
+let _template = 'Noodles';
 
 let eggs;
 
 const list = (
   <ul>
-    <li>{_tmpl}</li>
+    <li>{_template}</li>
     <li>Soup</li>
     <li>Rice</li>
     <li ref={eggs}>Eggs</li>

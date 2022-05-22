@@ -27,7 +27,10 @@ const compileJSXPlugin = (babel, options) => {
         throw path.buildCodeFrameError("JSXFragment is not supported.");
       },
       Program(path) {
-        shared.set("templateFunctionName", path.scope.generateUidIdentifier("tmpl").name);
+        shared.set(
+          "templateFunctionName",
+          path.scope.generateUidIdentifier("template").name
+        );
         shared.set("firstElementChild", path.scope.generateUidIdentifier("fec").name);
         shared.set("nextElementSibling", path.scope.generateUidIdentifier("nes").name);
         shared.set("spreadFunctionName", path.scope.generateUidIdentifier("sprd").name);
