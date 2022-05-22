@@ -82,7 +82,7 @@ function JSXElement(path) {
   };
 
   /** @type {Record<string, babel.types.Identifier | babel.types.MemberExpression>} */
-  const pathStore = {};
+  const pathsMap = {};
 
   /**
    * Try's to find the commend nodes with options
@@ -145,6 +145,7 @@ function JSXElement(path) {
             const { expression } = attr.value;
 
             if (t.isIdentifier(expression) || t.isMemberExpression(expression)) {
+              /** @type {string} */
               const curr_path =
                 current.length === 0
                   ? templateName.name
@@ -154,13 +155,16 @@ function JSXElement(path) {
               let ph = [...current];
               let path_changed = false;
 
-              const keys = Object.keys(pathStore);
+              const keys = Object.keys(pathsMap);
 
+              /**
+               * Longest paths comes to the end, so we iterate from the end
+               */
               for (let i = keys.length; i > 0; i--) {
                 const key = keys[i - 1];
 
                 if (curr_path.startsWith(key)) {
-                  const nd = pathStore[key];
+                  const nd = pathsMap[key];
 
                   if (key !== templateName.name) {
                     const str = curr_path.substring(0, key.length);
@@ -175,7 +179,7 @@ function JSXElement(path) {
                 }
               }
 
-              pathStore[curr_path] = expression;
+              pathsMap[curr_path] = expression;
 
               const right = path_changed
                 ? createMemberExpression(...ph) || templateName
