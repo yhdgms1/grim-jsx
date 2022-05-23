@@ -3,7 +3,12 @@
  */
 
 function StylishText(text) {
+  let c, c1;
+
   return (
-    <span style={{ color: '#f67288', 'font-size': '1.25rem' }} textContent={text}/>
+    <div ref={c}>
+      <span style={{ color: '#f67288', 'font-size': '1.25rem' }} textContent={text} />
+      <span ref={c1}> Another Span </span>
+    </div>
   )
 }

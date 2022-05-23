@@ -86,7 +86,7 @@ function JSXElement(path) {
   const pathsMap = {};
 
   /**
-   * @param {babel.types.Identifier | babel.types.MemberExpression} expr
+   * @param {babel.types.Identifier | babel.types.MemberExpression} [expr]
    */
   const generateNodeReference = (expr) => {
     /** @type {string} */
@@ -121,7 +121,12 @@ function JSXElement(path) {
       }
     }
 
-    pathsMap[curr_path] = expr;
+    /**
+     * It is needed to generate a new reference for later usage
+     */
+    if (expr) {
+      pathsMap[curr_path] = expr;
+    }
 
     const path = path_changed
       ? createMemberExpression(...ph) || templateName
@@ -228,9 +233,9 @@ function JSXElement(path) {
                 }
               }
 
-              const right = generateNodeReference(expression);
-
               if (name === "ref") {
+                const right = generateNodeReference(expression);
+
                 expressions.push(
                   t.expressionStatement(t.assignmentExpression("=", expression, right))
                 );
@@ -239,7 +244,10 @@ function JSXElement(path) {
                   t.expressionStatement(
                     t.assignmentExpression(
                       "=",
-                      t.memberExpression(right, t.identifier("textContent")),
+                      t.memberExpression(
+                        generateNodeReference(),
+                        t.identifier("textContent")
+                      ),
                       expression
                     )
                   )

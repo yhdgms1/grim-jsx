@@ -1,12 +1,15 @@
-import { template as _template } from "grim-jsx/runtime.js";
+import { template as _template, firstElementChild as _fec, nextElementSibling as _nes } from "grim-jsx/runtime.js";
 
-let _tmpl = _template(`<span style="color:#f67288;font-size:1.25rem;"></span>`);
+let _tmpl = _template(`<div><span style="color:#f67288;font-size:1.25rem;"></span><span> Another Span </span></div>`);
 
 function StylishText(text) {
+  let c, c1;
   return (() => {
     let _el = _tmpl.cloneNode(true);
 
-    _el.textContent = text;
+    c = _el;
+    _el[_fec].textContent = text;
+    c1 = _el[_fec][_nes];
     return _el;
   })();
 }
