@@ -148,32 +148,41 @@ function JSXElement(path) {
   const process = (node) => {
     if (t.isJSXText(node)) {
       const { value } = node;
-      let str = value.trim();
 
-      if (str === "") return;
+      if (value.trim() === "") return;
 
-      for (const [s, r] of [["`", "\\`"]]) {
-        str = str.replaceAll(s, r);
-      }
+      const text = value
+        .split("\n")
+        .map((line) => {
+          let str = line.trim();
 
-      /**
-       *  `     I am formatting` -> `I am formatting`
-       *  ` I am not`            -> ` I am not`
-       *  `I just retarded     ` -> `I just retarded`
-       *  `I am not `            -> `I am not `
-       */
+          for (const [s, r] of [["`", "\\`"]]) {
+            str = str.replaceAll(s, r);
+          }
 
-      if (value[0] === " " && value[1] !== " ") {
-        str = " " + str;
-      }
+          /**
+           *  `     I am formatting` -> `I am formatting`
+           *  ` I am not`            -> ` I am not`
+           *  `I just retarded     ` -> `I just retarded`
+           *  `I am not `            -> `I am not `
+           */
 
-      let len = value.length;
+          if (line[0] === " " && line[1] !== " ") {
+            str = " " + str;
+          }
 
-      if (value[len - 1] === " " && value[len - 2] !== " ") {
-        str += " ";
-      }
+          let len = line.length;
 
-      template.push(str);
+          if (line[len - 1] === " " && line[len - 2] !== " ") {
+            str += " ";
+          }
+
+          return str;
+        })
+        .filter((line) => line.trim() !== "")
+        .join(" ");
+
+      template.push(text);
     } else if (t.isJSXExpressionContainer(node)) {
       const { expression } = node;
 

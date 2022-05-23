@@ -1,0 +1,15 @@
+function l() {
+  function o() {
+    function v() {
+      function e() {
+        return (
+          <p>
+            Scientists came to the stunning conclusion: catgirls are real, but
+            were kept in Soviet laboratories. The plan is to release them into
+            the world in 2024.
+          </p>
+        );
+      }
+    }
+  }
+}
