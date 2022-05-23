@@ -1,0 +1,9 @@
+/**
+ * Using {} here will lead to an inserting text as innerHTML, but we need more safety
+ */
+
+function StylishText(text) {
+  return (
+    <span style={{ color: '#f67288', 'font-size': '1.25rem' }} textContent={text}/>
+  )
+}

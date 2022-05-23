@@ -9,6 +9,7 @@ import {
   getAttributeName,
   createTemplateLiteralBuilder,
   createIIFE,
+  is,
 } from "../utils";
 
 /**
@@ -85,6 +86,53 @@ function JSXElement(path) {
   const pathsMap = {};
 
   /**
+   * @param {babel.types.Identifier | babel.types.MemberExpression} expr
+   */
+  const generateNodeReference = (expr) => {
+    /** @type {string} */
+    const curr_path =
+      current.length === 0 ? templateName.name : current.map((i) => i.name).join(".");
+
+    /** @type {(babel.types.Identifier | babel.types.MemberExpression)[]} */
+    let ph = [...current];
+    let path_changed = false;
+
+    const keys = Object.keys(pathsMap);
+
+    /**
+     * Longest paths comes to the end, so we iterate from the end
+     */
+    for (let i = keys.length; i > 0; i--) {
+      const key = keys[i - 1];
+
+      if (curr_path.startsWith(key)) {
+        const nd = pathsMap[key];
+
+        if (key !== templateName.name) {
+          const str = curr_path.substring(0, key.length);
+          const slc = str.split(".").length;
+
+          ph = ph.slice(slc, ph.length);
+          ph = [nd, ...ph];
+
+          path_changed = true;
+          break;
+        }
+      }
+    }
+
+    pathsMap[curr_path] = expr;
+
+    const path = path_changed
+      ? createMemberExpression(...ph) || templateName
+      : current.length > 0
+      ? createMemberExpression(templateName, ...current) || templateName
+      : templateName;
+
+    return path;
+  };
+
+  /**
    * Try's to find the commend nodes with options
    */
   if (enableCommentOptions) extendOptions();
@@ -156,11 +204,11 @@ function JSXElement(path) {
         if (t.isJSXAttribute(attr)) {
           let name = getAttributeName(attr);
 
-          if (name === "ref" && t.isJSXExpressionContainer(attr.value)) {
+          if (is(name, "ref", "textContent") && t.isJSXExpressionContainer(attr.value)) {
             if (opts.enableStringMode) {
               const error = path.scope.hub.buildError(
                 node,
-                "Using ref's in string mode is impossible",
+                `Using ${name} in string mode is impossible`,
                 Error
               );
 
@@ -170,48 +218,6 @@ function JSXElement(path) {
             const { expression } = attr.value;
 
             if (t.isIdentifier(expression) || t.isMemberExpression(expression)) {
-              /** @type {string} */
-              const curr_path =
-                current.length === 0
-                  ? templateName.name
-                  : current.map((i) => i.name).join(".");
-
-              /** @type {(babel.types.Identifier | babel.types.MemberExpression)[]} */
-              let ph = [...current];
-              let path_changed = false;
-
-              const keys = Object.keys(pathsMap);
-
-              /**
-               * Longest paths comes to the end, so we iterate from the end
-               */
-              for (let i = keys.length; i > 0; i--) {
-                const key = keys[i - 1];
-
-                if (curr_path.startsWith(key)) {
-                  const nd = pathsMap[key];
-
-                  if (key !== templateName.name) {
-                    const str = curr_path.substring(0, key.length);
-                    const slc = str.split(".").length;
-
-                    ph = ph.slice(slc, ph.length);
-                    ph = [nd, ...ph];
-
-                    path_changed = true;
-                    break;
-                  }
-                }
-              }
-
-              pathsMap[curr_path] = expression;
-
-              const right = path_changed
-                ? createMemberExpression(...ph) || templateName
-                : current.length > 0
-                ? createMemberExpression(templateName, ...current) || templateName
-                : templateName;
-
               for (const item of current) {
                 if (item.name === firstElementChild.name) {
                   inuse.firstElementChild = true;
@@ -222,9 +228,23 @@ function JSXElement(path) {
                 }
               }
 
-              expressions.push(
-                t.expressionStatement(t.assignmentExpression("=", expression, right))
-              );
+              const right = generateNodeReference(expression);
+
+              if (name === "ref") {
+                expressions.push(
+                  t.expressionStatement(t.assignmentExpression("=", expression, right))
+                );
+              } else if (name === "textContent") {
+                expressions.push(
+                  t.expressionStatement(
+                    t.assignmentExpression(
+                      "=",
+                      t.memberExpression(right, t.identifier("textContent")),
+                      expression
+                    )
+                  )
+                );
+              }
             }
           } else {
             if (t.isStringLiteral(attr.value)) {

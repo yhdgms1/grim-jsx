@@ -8,4 +8,5 @@ export { jsxMemberExpressionToMemberExpression } from "./jsx-member-expression-t
 export { createTemplateLiteralBuilder } from "./template-literal-builder";
 export { isObject } from "./is-object";
 export { createIIFE } from "./create-iife";
+export { is } from "./is";
 export * as constants from "./constants";
