@@ -309,6 +309,8 @@ function JSXElement(path) {
                 } else {
                   template.push(insertAttrubute(name, attr));
                 }
+              } else if (t.isStringLiteral(expression)) {
+                template.push(insertAttrubute(name, expression.value));
               } else if (t.isExpression(expression)) {
                 template.push(` ${name}="`);
                 template.push(expression);
