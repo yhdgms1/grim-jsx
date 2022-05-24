@@ -6,12 +6,12 @@ import { shared } from "../shared";
 const getAttributeName = (attr) => {
   const { types: t } = shared().babel;
 
-  let name = "not-found";
+  let name = "";
 
-  if (typeof attr.name.name === "string") {
+  if (t.isJSXIdentifier(attr.name)) {
     name = attr.name.name;
-  } else if (t.isJSXIdentifier(attr.name.name)) {
-    name = attr.name.name.name;
+  } else if (t.isJSXNamespacedName(attr.name)) {
+    name = attr.name.namespace.name + ":" + attr.name.name.name;
   }
 
   return name;
