@@ -221,7 +221,7 @@ function JSXElement(path) {
           if (is(name, "ref", "textContent") && t.isJSXExpressionContainer(attr.value)) {
             if (opts.enableStringMode) {
               const error = path.scope.hub.buildError(
-                node,
+                attr,
                 `Using ${name} in string mode is impossible`,
                 Error
               );
@@ -231,37 +231,43 @@ function JSXElement(path) {
 
             const { expression } = attr.value;
 
-            if (t.isIdentifier(expression) || t.isMemberExpression(expression)) {
-              for (const item of current) {
-                if (item.name === firstElementChild.name) {
-                  inuse.firstElementChild = true;
-                }
+            if (!t.isExpression(expression)) {
+              continue;
+            }
 
-                if (item.name === nextElementSibling.name) {
-                  inuse.nextElementSibling = true;
-                }
+            for (const item of current) {
+              if (item.name === firstElementChild.name) {
+                inuse.firstElementChild = true;
               }
 
-              if (name === "ref") {
-                const right = generateNodeReference(expression);
+              if (item.name === nextElementSibling.name) {
+                inuse.nextElementSibling = true;
+              }
+            }
 
-                expressions.push(
-                  t.expressionStatement(t.assignmentExpression("=", expression, right))
-                );
-              } else if (name === "textContent") {
-                expressions.push(
-                  t.expressionStatement(
-                    t.assignmentExpression(
-                      "=",
-                      t.memberExpression(
-                        generateNodeReference(),
-                        t.identifier("textContent")
-                      ),
-                      expression
-                    )
+            if (name === "ref") {
+              if (!t.isLVal(expression)) {
+                continue;
+              }
+
+              const right = generateNodeReference(expression);
+
+              expressions.push(
+                t.expressionStatement(t.assignmentExpression("=", expression, right))
+              );
+            } else if (name === "textContent") {
+              expressions.push(
+                t.expressionStatement(
+                  t.assignmentExpression(
+                    "=",
+                    t.memberExpression(
+                      generateNodeReference(),
+                      t.identifier("textContent")
+                    ),
+                    expression
                   )
-                );
-              }
+                )
+              );
             }
           } else {
             if (t.isStringLiteral(attr.value)) {
@@ -408,9 +414,11 @@ function JSXElement(path) {
         shared().sharedNodes[current_raw] = decl;
       }
 
-      /** @type {babel.types.Identifier} */
-      // @ts-ignore - We create these declarations and know it is Identifier
       const object = decl.declarations[0].id;
+
+      if (!t.isExpression(object)) {
+        throw path.scope.hub.buildError(node, `${node.type} in unsupported.`, Error);
+      }
 
       const call = t.callExpression(
         t.memberExpression(object, t.identifier("cloneNode")),
