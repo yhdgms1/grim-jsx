@@ -151,36 +151,44 @@ function JSXElement(path) {
 
       if (value.trim() === "") return;
 
-      const text = value
-        .split("\n")
-        .map((line) => {
-          let str = line.trim();
+      const splitted = value.split("\n");
 
-          for (const [s, r] of [["`", "\\`"]]) {
-            str = str.replaceAll(s, r);
-          }
+      let text = "";
 
-          /**
-           *  `     I am formatting` -> `I am formatting`
-           *  ` I am not`            -> ` I am not`
-           *  `I just retarded     ` -> `I just retarded`
-           *  `I am not `            -> `I am not `
-           */
+      let i = 0;
 
-          if (line[0] === " " && line[1] !== " ") {
-            str = " " + str;
-          }
+      while (i < splitted.length) {
+        const line = splitted[i];
 
-          let len = line.length;
+        let str = line.trim();
 
-          if (line[len - 1] === " " && line[len - 2] !== " ") {
-            str += " ";
-          }
+        for (const [s, r] of [["`", "\\`"]]) {
+          str = str.replaceAll(s, r);
+        }
 
-          return str;
-        })
-        .filter((line) => line.trim() !== "")
-        .join(" ");
+        /**
+         *  `     I am formatting` -> `I am formatting`
+         *  ` I am not`            -> ` I am not`
+         *  `I just retarded     ` -> `I just retarded`
+         *  `I am not `            -> `I am not `
+         */
+
+        if (line[0] === " " && line[1] !== " ") {
+          str = " " + str;
+        }
+
+        let len = line.length;
+
+        if (line[len - 1] === " " && line[len - 2] !== " ") {
+          str += " ";
+        }
+
+        if (str.trim() !== "") {
+          text += i > 1 ? " " + str : str;
+        }
+
+        i++;
+      }
 
       template.push(text);
     } else if (t.isJSXExpressionContainer(node)) {
