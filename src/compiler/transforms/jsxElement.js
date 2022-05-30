@@ -10,6 +10,7 @@ import {
   createTemplateLiteralBuilder,
   createIIFE,
   is,
+  escape,
 } from "../utils";
 
 /**
@@ -160,11 +161,7 @@ function JSXElement(path) {
       while (i < splitted.length) {
         const line = splitted[i];
 
-        let str = line.trim();
-
-        for (const [s, r] of [["`", "\\`"]]) {
-          str = str.replaceAll(s, r);
-        }
+        let str = escape(line.trim());
 
         /**
          *  `     I am formatting` -> `I am formatting`
@@ -200,12 +197,14 @@ function JSXElement(path) {
          */
         template.push(`{}`);
       } else if (t.isStringLiteral(expression)) {
-        const { value } = expression;
+        let { value } = expression;
 
         /**
          * Statically injects the string
          * i.e. `<div>{'hello lol'}</div>` -> `<div>hello lol</div>`
          */
+
+        value = escape(value);
 
         template.push(value);
       } else {
@@ -281,12 +280,7 @@ function JSXElement(path) {
             if (t.isStringLiteral(attr.value)) {
               let { value } = attr.value;
 
-              for (const [s, r] of [
-                ["`", "\\`"],
-                ["${", "\\${"],
-              ]) {
-                value = value.replaceAll(s, r);
-              }
+              value = escape(value);
 
               template.push(insertAttrubute(name, value));
             } else if (t.isJSXExpressionContainer(attr.value)) {

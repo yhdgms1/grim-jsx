@@ -37,28 +37,11 @@ type Options = BasicOptions & RuntimeOptions;
  * A babel plugin.
  * @see https://babeljs.io/docs/en/plugins/
  */
-declare const compileJSXPlugin = (
-  babel: babel,
-  options?: Options
-): babel.PluginObj => {};
+declare const compileJSXPlugin = (babel: babel, options?: Options): babel.PluginObj => {};
 
 /**
  * @description A helper for configuring the compiler.
  */
 declare const defineConfig = (config?: Options): Options => {};
-
-declare module "grim-jsx/jsx-runtime" {
-  namespace JSX {
-    type Element = HTMLElement;
-
-    interface ElementChildrenAttribute {
-      children?: string | never | never[];
-    }
-
-    interface IntrinsicElements {
-      [element: string]: string | number | Record<string, string>;
-    }
-  }
-}
 
 export { Options, compileJSXPlugin, defineConfig };
