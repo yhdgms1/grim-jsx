@@ -14,7 +14,7 @@ import {
 } from "../utils";
 
 /**
- * @param {babel.NodePath<babel.types.JSXElement>} path
+ * @param {babel.NodePath<import('@babel/core').types.JSXElement>} path
  * @returns
  */
 function JSXElement(path) {
@@ -44,12 +44,12 @@ function JSXElement(path) {
 
   const root = node;
 
-  /** @type {babel.types.Identifier[]} */
+  /** @type {import('@babel/core').types.Identifier[]} */
   let current = [];
-  /** @type {null | babel.types.Identifier} */
+  /** @type {null | import('@babel/core').types.Identifier} */
   let type = firstElementChild;
 
-  /** @type {babel.types.ExpressionStatement[]} */
+  /** @type {import('@babel/core').types.ExpressionStatement[]} */
   const expressions = [];
 
   const template = createTemplateLiteralBuilder();
@@ -83,18 +83,18 @@ function JSXElement(path) {
     }
   };
 
-  /** @type {Record<string, babel.types.Identifier | babel.types.MemberExpression>} */
+  /** @type {Record<string, import('@babel/core').types.Identifier | import('@babel/core').types.MemberExpression>} */
   const pathsMap = {};
 
   /**
-   * @param {babel.types.Identifier | babel.types.MemberExpression} [expr]
+   * @param {import('@babel/core').types.Identifier | import('@babel/core').types.MemberExpression} [expr]
    */
   const generateNodeReference = (expr) => {
     /** @type {string} */
     const curr_path =
       current.length === 0 ? templateName.name : current.map((i) => i.name).join(".");
 
-    /** @type {(babel.types.Identifier | babel.types.MemberExpression)[]} */
+    /** @type {(import('@babel/core').types.Identifier | import('@babel/core').types.MemberExpression)[]} */
     let ph = [...current];
     let path_changed = false;
 
@@ -397,7 +397,7 @@ function JSXElement(path) {
       const current_raw = template.template.quasis[0].value.raw;
       const { sharedNodes } = shared();
 
-      /** @type {babel.types.VariableDeclaration | null} */
+      /** @type {import('@babel/core').types.VariableDeclaration | null} */
       let decl = null;
 
       /**

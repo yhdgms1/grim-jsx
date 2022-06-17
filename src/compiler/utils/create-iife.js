@@ -2,7 +2,7 @@ import { shared } from "../shared";
 
 /**
  *
- * @param  {...babel.types.Statement} body
+ * @param  {...import('@babel/core').types.Statement} body
  * @returns
  */
 const createIIFE = (...body) => {

@@ -1,7 +1,7 @@
 import { shared } from "../shared";
 
 /**
- * @param {babel.types.JSXIdentifier | babel.types.JSXMemberExpression | babel.types.JSXNamespacedName} node
+ * @param {import('@babel/core').types.JSXIdentifier | import('@babel/core').types.JSXMemberExpression | import('@babel/core').types.JSXNamespacedName} node
  */
 const getJSXElementName = (node) => {
   const { types: t } = shared().babel;

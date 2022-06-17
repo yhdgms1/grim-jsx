@@ -1,0 +1,7 @@
+const className = "red_uglyhash";
+
+function App() {
+  return (
+    <div class={className}>Content</div>
+  )
+}

@@ -17,7 +17,7 @@ const createTemplateLiteralBuilder = () => {
   };
 
   /**
-   * @param {string | babel.types.Expression | babel.types.JSXMemberExpression} arg
+   * @param {string | import('@babel/core').types.Expression | import('@babel/core').types.JSXMemberExpression} arg
    */
   const push = (arg) => {
     if (typeof arg === "string") {

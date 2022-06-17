@@ -1,7 +1,7 @@
 import { shared } from "../shared";
 
 /**
- * @param {babel.types.JSXMemberExpression | babel.types.JSXIdentifier} expr
+ * @param {import('@babel/core').types.JSXMemberExpression | import('@babel/core').types.JSXIdentifier} expr
  */
 const jsxMemberExpressionToMemberExpression = (expr) => {
   const { types: t } = shared().babel;

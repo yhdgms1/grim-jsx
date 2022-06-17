@@ -1,7 +1,7 @@
 import { shared } from "../shared";
 
 /**
- * @param {babel.types.ObjectProperty} p
+ * @param {import('@babel/core').types.ObjectProperty} p
  */
 const getKey = (p) => {
   const { types: t } = shared().babel;
@@ -24,7 +24,7 @@ const getKey = (p) => {
 };
 
 /**
- * @param {babel.types.ObjectProperty} p
+ * @param {import('@babel/core').types.ObjectProperty} p
  */
 const getValue = (p) => {
   const { types: t } = shared().babel;
@@ -39,7 +39,7 @@ const getValue = (p) => {
 };
 
 /**
- * @param {babel.types.ObjectExpression} ex
+ * @param {import('@babel/core').types.ObjectExpression} ex
  */
 const objectExpressionToAttribute = (ex) => {
   const { types: t } = shared().babel;

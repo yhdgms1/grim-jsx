@@ -9,7 +9,7 @@ const shared = Osake({
   enableStringMode: false,
 
   inlineRuntime: false,
-  runtime: /** @type {babel.types.Statement[]} */ ([]),
+  runtime: /** @type {import('@babel/core').types.Statement[]} */ ([]),
 
   inuse: {
     template: false,
@@ -23,8 +23,8 @@ const shared = Osake({
   firstElementChild: "grim_$fec",
   nextElementSibling: "grim_$nes",
 
-  programPath: /** @type {babel.NodePath<babel.types.Program> | null} */ (null),
-  sharedNodes: /** @type {Record<string, babel.types.VariableDeclaration>} */ ({}),
+  programPath: /** @type {babel.NodePath<import('@babel/core').types.Program> | null} */ (null),
+  sharedNodes: /** @type {Record<string, import('@babel/core').types.VariableDeclaration>} */ ({}),
 });
 
 export { shared };

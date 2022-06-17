@@ -27,7 +27,7 @@ function post(file) {
   } = shared();
 
   const produceImports = () => {
-    /** @type {babel.types.ImportSpecifier[]} */
+    /** @type {import('@babel/core').types.ImportSpecifier[]} */
     const importSpecifiers = [];
 
     if (inuse.template) {

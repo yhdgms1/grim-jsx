@@ -1,8 +1,8 @@
 import { shared } from "../shared";
 
 /**
- * @param {(babel.types.Identifier | babel.types.MemberExpression)[]} parts
- * @returns {babel.types.MemberExpression | null}
+ * @param {(import('@babel/core').types.Identifier | import('@babel/core').types.MemberExpression)[]} parts
+ * @returns {import('@babel/core').types.MemberExpression | null}
  */
 const createMemberExpression = (...parts) => {
   const { types: t } = shared().babel;

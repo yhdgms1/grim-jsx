@@ -1,7 +1,7 @@
 import { shared } from "../shared";
 
 /**
- * @param {babel.types.JSXAttribute} attr
+ * @param {import('@babel/core').types.JSXAttribute} attr
  */
 const getAttributeName = (attr) => {
   const { types: t } = shared().babel;
