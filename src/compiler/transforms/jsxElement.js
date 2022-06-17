@@ -305,7 +305,32 @@ function JSXElement(path) {
                 }
               } else if (t.isStringLiteral(expression)) {
                 template.push(insertAttrubute(name, expression.value));
+              } else if (t.isIdentifier(expression)) {
+                const binding = path.scope.getBinding(expression.name);
+
+                const write = () => {
+                  template.push(` ${name}="`);
+                  template.push(expression);
+                  template.push(`"`);
+                }
+
+                if (binding && (binding.kind === 'const')) {
+                  const { node } = binding.path;
+
+                  if (!t.isVariableDeclarator(node) || !t.isStringLiteral(node.init) || !t.isIdentifier(node.id)) {
+                    write();
+                    continue;
+                  }
+                  
+                  template.push(` ${name}="`)
+                  template.push(node.init.value)
+                  template.push(`"`);
+                } else {
+                  write()
+                }
               } else if (t.isExpression(expression)) {
+                
+
                 template.push(` ${name}="`);
                 template.push(expression);
                 template.push(`"`);

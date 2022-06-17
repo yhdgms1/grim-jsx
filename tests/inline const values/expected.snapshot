@@ -1,0 +1,9 @@
+import { template as _template } from "grim-jsx/runtime.js";
+
+let _tmpl = _template(`<div class="red_uglyhash">Content</div>`);
+
+const className = "red_uglyhash";
+
+function App() {
+  return _tmpl.cloneNode(true);
+}
