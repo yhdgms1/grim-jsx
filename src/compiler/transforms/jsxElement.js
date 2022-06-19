@@ -307,6 +307,11 @@ function JSXElement(path) {
 
                   if (!binding) return;
 
+                  /**
+                   * 'var' is appectable here because module exports get transformed to 'var'
+                   */
+                  if (binding.kind !== "var" && binding.kind !== "const") return;
+
                   const { path: bindingPath } = binding;
                   const { node: bindingNode } = bindingPath;
 
@@ -357,6 +362,11 @@ function JSXElement(path) {
                           mark();
                           break;
                         }
+
+                        /**
+                         * 'var' is also ok here because it also may be exported
+                         */
+                        if (binding.kind !== "var" && binding.kind !== "const") return;
 
                         const { path: bindingPath } = binding;
                         const { node: bindingNode } = bindingPath;
