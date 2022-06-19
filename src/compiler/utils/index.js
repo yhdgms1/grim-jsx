@@ -10,4 +10,6 @@ export { isObject } from "./is-object";
 export { createIIFE } from "./create-iife";
 export { is } from "./is";
 export { escape } from "./escape";
+export { trim } from "./trim-multiline";
+export { get } from "./get";
 export * as constants from "./constants";

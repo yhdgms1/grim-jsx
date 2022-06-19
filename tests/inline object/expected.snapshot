@@ -1,0 +1,13 @@
+import { template as _template } from "grim-jsx/runtime.js";
+
+let _tmpl = _template(`<div class="_header_hash"><h1 class="_title__great_hash">Hello World</h1></div>`);
+
+const header = "_header_hash";
+var styles = {
+  header: header,
+  "title__great": "_title__great_hash"
+};
+
+function App() {
+  return _tmpl.cloneNode(true);
+}

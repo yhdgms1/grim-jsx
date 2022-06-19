@@ -1,0 +1,18 @@
+// styles.module.css
+
+const header = "_header_hash";
+
+var styles = {
+  header: header,
+  "title__great": "_title__great_hash",
+};
+
+// App.jsx
+
+function App() {
+  return (
+    <div class={styles.header}>
+      <h1 class={styles.title__great}>Hello World</h1>
+    </div>
+  )
+}
