@@ -28,7 +28,9 @@
     "@rollup/plugin-node-resolve": "^13.2.1",
     "@rollup/plugin-replace": "^4.0.0",
     "@types/babel__core": "^7.1.19",
+    "esbuild": "^0.15.6",
     "rollup": "^2.70.2",
+    "rollup-plugin-esbuild-transform": "^1.5.0",
     "uvu": "^0.5.3"
   },
   "main": "./dist/bundle.js",
@@ -37,8 +39,7 @@
   },
   "dependencies": {
     "@artemis69/im": "^0.2.0",
-    "@babel/plugin-syntax-jsx": "^7.16.7",
-    "osake": "^0.2.0"
+    "@babel/plugin-syntax-jsx": "^7.16.7"
   },
   "types": "./types.d.ts"
 }

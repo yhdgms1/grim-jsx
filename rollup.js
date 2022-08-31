@@ -2,6 +2,7 @@ import { rollup, defineConfig } from "rollup";
 import resolve from "@rollup/plugin-node-resolve";
 import commonjs from "@rollup/plugin-commonjs";
 import replace from "@rollup/plugin-replace";
+import esbuild from "rollup-plugin-esbuild-transform";
 
 /**
  * @param {string} code
@@ -28,11 +29,16 @@ async function main() {
 
   const plugin = await rollup(
     defineConfig({
-      input: "src/index.js",
+      input: "src/index.ts",
       treeshake: true,
       external: ["@babel/core", "@babel/types", "@babel/plugin-syntax-jsx"],
       plugins: [
         resolve(),
+        esbuild([
+          {
+            loader: "ts",
+          },
+        ]),
         commonjs(),
         replace({
           preventAssignment: true,

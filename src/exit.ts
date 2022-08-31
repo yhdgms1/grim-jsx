@@ -1,34 +1,34 @@
-import { shared } from "../shared";
+import type { VisitNodeFunction } from "@babel/traverse";
+import type { types, PluginPass } from "@babel/core";
 
-/**
- * @this {import('@babel/core').PluginPass}
- * @param {import('@babel/core').BabelFile} file
- */
-function post(file) {
-  const { body } = file.ast.program;
+import { getMutable, getBabel, getConfig } from "./share";
 
-  const { inuse, babel } = shared();
-  const { types: t } = babel;
+type Program = types.Program;
+
+// @ts-ignore
+const exit: VisitNodeFunction<PluginPass, Program> = (path, state) => {
+  const { types: t, parseSync } = getBabel();
+  const { inuse } = getMutable(state);
+  const { node } = path;
+  const { body } = node;
 
   const noImports = Object.values(inuse).every((value) => value === false);
 
   if (noImports) {
-    /**
-     * At this stage post function only manages imports, so if there is no imports, just return...
-     */
     return;
   }
+
+  const config = getConfig(state);
 
   const {
     templateFunctionName,
     spreadFunctionName,
     firstElementChild,
     nextElementSibling,
-  } = shared();
+  } = getMutable(state);
 
   const produceImports = () => {
-    /** @type {babel.types.ImportSpecifier[]} */
-    const importSpecifiers = [];
+    const importSpecifiers: types.ImportSpecifier[] = [];
 
     if (inuse.template) {
       importSpecifiers.push(
@@ -65,7 +65,7 @@ function post(file) {
     for (const child of body) {
       if (t.isImportDeclaration(child)) {
         if (t.isStringLiteral(child.source)) {
-          if (child.source.value === shared().importSource) {
+          if (child.source.value === config.importSource) {
             child.specifiers.push(...importSpecifiers);
 
             addedImport = true;
@@ -77,13 +77,23 @@ function post(file) {
 
     if (!noImports && !addedImport) {
       body.unshift(
-        t.importDeclaration(importSpecifiers, t.stringLiteral(shared().importSource))
+        t.importDeclaration(
+          importSpecifiers,
+          t.stringLiteral(config.importSource || "grim-jsx/dist/runtime.js")
+        )
       );
     }
   };
 
   const produceInlining = () => {
-    const { runtime } = shared();
+    // @ts-expect-error - Rollup will replace it with a string.
+    const ast = parseSync(config.customRuntime || RUNTIME);
+
+    if (!ast) {
+      throw new Error(`Runtime could not be parsed.`);
+    }
+
+    const runtime = ast.program.body;
 
     if (runtime.length === 0) {
       throw new Error("Runtime is not defined");
@@ -124,13 +134,11 @@ function post(file) {
     }
   };
 
-  if (shared().inlineRuntime) {
+  if (config.inlineRuntime) {
     produceInlining();
   } else {
     produceImports();
   }
+};
 
-  shared.set("sharedNodes", {});
-}
-
-export { post };
+export { exit };

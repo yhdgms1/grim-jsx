@@ -5,9 +5,8 @@ const replacements = [
 
 /**
  * Escapes '`' and '${'
- * @param {string} text
  */
-const escape = (text) => {
+const escape = (text: string) => {
   for (const [s, r] of replacements) {
     text = text.replaceAll(s, r);
   }

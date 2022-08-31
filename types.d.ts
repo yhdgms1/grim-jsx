@@ -9,29 +9,24 @@ interface BasicOptions {
    * @default undefined
    */
   enableCommentOptions?: boolean;
+
+  /**
+   * The module from which grim imports it's runtime.
+   * @default "grim-jsx/dist/runtime.js"
+   */
+  importSource?: string;
+  /**
+   * In case the imports cannot be used, inline runtime.
+   * @default undefined
+   */
+  inlineRuntime?: boolean;
+  /**
+   * The runtime to be inlined. By default, it is a grim's runtime.
+   */
+  customRuntime?: string;
 }
 
-type RuntimeOptions =
-  | {
-      /**
-       * The module from which grim loads it's runtime.
-       * @default "grim-jsx/dist/runtime.js"
-       */
-      importSource?: string;
-    }
-  | {
-      /**
-       * In case the imports cannot be used, inline runtime.
-       * @default undefined
-       */
-      inlineRuntime?: boolean;
-      /**
-       * The runtime to be inlined. By default, it is a grim's runtime.
-       */
-      customRuntime?: string;
-    };
-
-type Options = BasicOptions & RuntimeOptions;
+type Options = BasicOptions;
 
 /**
  * A babel plugin.

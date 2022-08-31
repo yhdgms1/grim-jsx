@@ -1,4 +1,4 @@
-export * from "./compiler";
+import { compileJSXPlugin } from "./plugin";
 
 /**
  * @param {import('../types').Options} [config]
@@ -9,4 +9,5 @@ const defineConfig = (config = {}) => {
   return config;
 };
 
-export { defineConfig };
+export { defineConfig, compileJSXPlugin };
+export default compileJSXPlugin;

@@ -1,10 +1,10 @@
-import { shared } from "../shared";
+import { types } from "@babel/core";
+import { getBabel } from "../share";
 
-/**
- * @param {babel.types.JSXMemberExpression | babel.types.JSXIdentifier} expr
- */
-const jsxMemberExpressionToMemberExpression = (expr) => {
-  const { types: t } = shared().babel;
+type ExprArg = types.JSXMemberExpression | types.JSXIdentifier;
+
+const jsxMemberExpressionToMemberExpression = (expr: ExprArg) => {
+  const { types: t } = getBabel();
 
   if (t.isJSXIdentifier(expr)) {
     return t.identifier(expr.name);

@@ -1,10 +1,10 @@
-import { shared } from "../shared";
+import { types } from "@babel/core";
+import { getBabel } from "../share";
 
-/**
- * @param {babel.types.JSXIdentifier | babel.types.JSXMemberExpression | babel.types.JSXNamespacedName} node
- */
-const getJSXElementName = (node) => {
-  const { types: t } = shared().babel;
+type NodeArg = types.JSXIdentifier | types.JSXMemberExpression | types.JSXNamespacedName;
+
+const getJSXElementName = (node: NodeArg) => {
+  const { types: t } = getBabel();
 
   let name = "";
 

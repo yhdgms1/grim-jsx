@@ -1,6 +1,6 @@
 /*options: {"enableStringMode":true}*/
 
-const people = ["Artem", "Ivan", "Arina", "Roman", "Kenzi"];
+const people = ["Artem", "Ivan", "Arina", "Kenzi"];
 
 let str = (
   <div>

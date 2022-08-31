@@ -1,4 +1,9 @@
-import { shared } from "../shared";
+import type { types, PluginPass } from "@babel/core";
+import type { VisitNodeFunction } from "@babel/traverse";
+
+type JSXElement = types.JSXElement;
+
+import { getBabel, getConfig, getMutable } from "./share";
 
 import {
   objectExpressionToAttribute,
@@ -11,32 +16,30 @@ import {
   createIIFE,
   is,
   escape,
-} from "../utils";
+} from "./utils";
 
-/**
- * @param {babel.NodePath<babel.types.JSXElement>} path
- * @returns
- */
-function JSXElement(path) {
+const JSXElement: VisitNodeFunction<PluginPass, JSXElement> = (path, state) => {
   const { parent, node } = path;
 
-  const { babel, enableCommentOptions, inuse, programPath } = shared();
-  const { types: t } = babel;
-
-  if (
-    t.isJSXElement(parent) ||
-    t.isJSXExpressionContainer(parent) ||
-    t.isJSXSpreadChild(parent) ||
-    t.isJSXText(parent)
-  ) {
-    return;
-  }
-
   const {
+    templateFunctionName: tmpl,
     spreadFunctionName: sprd,
     firstElementChild: fec,
     nextElementSibling: nes,
-  } = shared();
+    inuse,
+    generateGlobalUid,
+    programPath,
+    sharedNodes,
+  } = getMutable(state);
+
+  const config = getConfig(state);
+  const babel = getBabel();
+  const { types: t } = babel;
+
+  // prettier-ignore
+  if (t.isJSXElement(parent) || t.isJSXExpressionContainer(parent) || t.isJSXSpreadChild(parent) || t.isJSXText(parent)) {
+    return;
+  }
 
   const spreadFunctionName = t.identifier(sprd);
   const firstElementChild = t.identifier(fec);
@@ -44,19 +47,17 @@ function JSXElement(path) {
 
   const root = node;
 
-  /** @type {babel.types.Identifier[]} */
-  let current = [];
-  /** @type {null | babel.types.Identifier} */
-  let type = firstElementChild;
+  let current: types.Identifier[] = [];
+  let type: null | types.Identifier = firstElementChild;
 
-  /** @type {babel.types.ExpressionStatement[]} */
-  const expressions = [];
+  const expressions: types.ExpressionStatement[] = [];
 
   const template = createTemplateLiteralBuilder();
 
-  let templateName = (programPath || path).scope.generateUidIdentifier("el");
+  let templateName = t.identifier(generateGlobalUid("el"));
 
-  const opts = { enableStringMode: shared().enableStringMode };
+  let enableStringMode = config.enableStringMode;
+  let enableCommentOptions = config.enableCommentOptions;
 
   const extendOptions = () => {
     /**
@@ -73,29 +74,26 @@ function JSXElement(path) {
         const { value, loc } = comment;
 
         if (value.includes("@enableStringMode")) {
-          opts.enableStringMode = true;
+          enableStringMode = true;
         }
 
         if (value.includes("@disableStringMode")) {
-          opts.enableStringMode = false;
+          enableStringMode = false;
         }
       }
     }
   };
 
-  /** @type {Record<string, babel.types.Identifier | babel.types.MemberExpression>} */
-  const pathsMap = {};
+  const pathsMap = {} as Record<
+    string,
+    babel.types.Identifier | babel.types.MemberExpression
+  >;
 
-  /**
-   * @param {babel.types.Identifier | babel.types.MemberExpression} [expr]
-   */
-  const generateNodeReference = (expr) => {
-    /** @type {string} */
+  const generateNodeReference = (expr?: types.Identifier | types.MemberExpression) => {
     const curr_path =
       current.length === 0 ? templateName.name : current.map((i) => i.name).join(".");
 
-    /** @type {(babel.types.Identifier | babel.types.MemberExpression)[]} */
-    let ph = [...current];
+    let ph = [...current] as (babel.types.Identifier | babel.types.MemberExpression)[];
     let path_changed = false;
 
     const keys = Object.keys(pathsMap);
@@ -143,10 +141,7 @@ function JSXElement(path) {
    */
   if (enableCommentOptions) extendOptions();
 
-  /**
-   * @param {typeof root.children[number]} node
-   */
-  const process = (node) => {
+  const process = (node: typeof root.children[number]) => {
     if (t.isJSXText(node)) {
       const { value } = node;
 
@@ -226,7 +221,7 @@ function JSXElement(path) {
           let name = getAttributeName(attr);
 
           if (is(name, "ref", "textContent") && t.isJSXExpressionContainer(attr.value)) {
-            if (opts.enableStringMode) {
+            if (enableStringMode) {
               const error = path.scope.hub.buildError(
                 attr,
                 `Using ${name} in string mode is impossible`,
@@ -374,14 +369,12 @@ function JSXElement(path) {
     isSVG = tagName !== "svg" && constants.SVGElements.has(tagName);
   }
 
-  if (opts.enableStringMode) {
+  if (enableStringMode) {
     path.replaceWith(template.template);
   } else {
     inuse.template = true;
 
-    const templateCall = t.callExpression(t.identifier(shared().templateFunctionName), [
-      template.template,
-    ]);
+    const templateCall = t.callExpression(t.identifier(tmpl), [template.template]);
 
     if (isSVG) {
       template.unshift(`<svg>`);
@@ -395,10 +388,8 @@ function JSXElement(path) {
      */
     if (programPath && template.template.quasis.length === 1) {
       const current_raw = template.template.quasis[0].value.raw;
-      const { sharedNodes } = shared();
 
-      /** @type {babel.types.VariableDeclaration | null} */
-      let decl = null;
+      let decl: types.VariableDeclaration | null = null;
 
       /**
        * If there are identical elements, we reuse them
@@ -407,18 +398,15 @@ function JSXElement(path) {
         decl = sharedNodes[current_raw];
       } else {
         decl = t.variableDeclaration("let", [
-          t.variableDeclarator(
-            (programPath || path).scope.generateUidIdentifier("tmpl"),
-            templateCall
-          ),
+          t.variableDeclarator(t.identifier(generateGlobalUid("tmpl")), templateCall),
         ]);
 
         programPath.node.body.unshift(decl);
 
-        shared().sharedNodes[current_raw] = decl;
+        sharedNodes[current_raw] = decl;
       }
 
-      const object = decl.declarations[0].id;
+      const object = decl!.declarations[0].id;
 
       if (!t.isExpression(object)) {
         throw path.scope.hub.buildError(node, `${node.type} in unsupported.`, Error);
@@ -456,6 +444,6 @@ function JSXElement(path) {
       }
     }
   }
-}
+};
 
 export { JSXElement };
