@@ -11,7 +11,7 @@ const getJSXElementName = (node: NodeArg) => {
   if (t.isJSXIdentifier(node)) {
     name = node.name;
   } else if (t.isJSXMemberExpression(node)) {
-    return { expression: node };
+    return node;
   } else if (t.isJSXNamespacedName(node)) {
     return `${node.namespace.name}:${node.name.name}`;
   }

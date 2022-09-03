@@ -84,16 +84,13 @@ const JSXElement: VisitNodeFunction<PluginPass, JSXElement> = (path, state) => {
     }
   };
 
-  const pathsMap = {} as Record<
-    string,
-    babel.types.Identifier | babel.types.MemberExpression
-  >;
+  const pathsMap = {} as Record<string, types.Identifier | types.MemberExpression>;
 
   const generateNodeReference = (expr?: types.Identifier | types.MemberExpression) => {
     const curr_path =
       current.length === 0 ? templateName.name : current.map((i) => i.name).join(".");
 
-    let ph = [...current] as (babel.types.Identifier | babel.types.MemberExpression)[];
+    let ph = [...current] as (types.Identifier | types.MemberExpression)[];
     let path_changed = false;
 
     const keys = Object.keys(pathsMap);
@@ -209,12 +206,7 @@ const JSXElement: VisitNodeFunction<PluginPass, JSXElement> = (path, state) => {
       let tagName = getJSXElementName(node.openingElement.name);
 
       template.push(`<`);
-
-      if (typeof tagName === "string") {
-        template.push(tagName);
-      } else {
-        template.push(tagName.expression);
-      }
+      template.push(tagName);
 
       for (const attr of node.openingElement.attributes) {
         if (t.isJSXAttribute(attr)) {
@@ -273,9 +265,7 @@ const JSXElement: VisitNodeFunction<PluginPass, JSXElement> = (path, state) => {
             }
           } else {
             if (t.isStringLiteral(attr.value)) {
-              let { value } = attr.value;
-
-              value = escape(value);
+              const value = escape(attr.value.value);
 
               template.push(insertAttrubute(name, value));
             } else if (t.isJSXExpressionContainer(attr.value)) {
@@ -347,13 +337,11 @@ const JSXElement: VisitNodeFunction<PluginPass, JSXElement> = (path, state) => {
 
       current = current.slice(0, current_index);
 
-      if (typeof tagName === "string") {
-        if (!constants.voidElements.has(tagName)) {
-          template.push(`</${tagName}>`);
-        }
-      } else {
+      const selfClosing = constants.voidElements.has(tagName as string);
+
+      if (!selfClosing) {
         template.push(`</`);
-        template.push(tagName.expression);
+        template.push(tagName);
         template.push(`>`);
       }
     }
@@ -363,11 +351,7 @@ const JSXElement: VisitNodeFunction<PluginPass, JSXElement> = (path, state) => {
 
   let tagName = getJSXElementName(root.openingElement.name);
 
-  let isSVG = false;
-
-  if (typeof tagName === "string") {
-    isSVG = tagName !== "svg" && constants.SVGElements.has(tagName);
-  }
+  const isSVG = tagName !== "svg" && constants.SVGElements.has(tagName as string);
 
   if (enableStringMode) {
     path.replaceWith(template.template);
