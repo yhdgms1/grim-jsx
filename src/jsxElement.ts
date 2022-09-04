@@ -84,53 +84,47 @@ const JSXElement: VisitNodeFunction<PluginPass, JSXElement> = (path, state) => {
     }
   };
 
-  const pathsMap = {} as Record<string, types.Identifier | types.MemberExpression>;
+  type Ref = types.Identifier | types.MemberExpression;
+  const pathsMap = {} as Record<string, Ref>;
 
-  const generateNodeReference = (expr?: types.Identifier | types.MemberExpression) => {
-    const curr_path =
-      current.length === 0 ? templateName.name : current.map((i) => i.name).join(".");
+  const generateNodeReference = (ref?: Ref) => {
+    const empty = current.length === 0;
+    const rootElement = templateName.name;
+    const currentPath = empty ? rootElement : current.map((i) => i.name).join(".");
 
-    let ph = [...current] as (types.Identifier | types.MemberExpression)[];
-    let path_changed = false;
+    let path = current.slice() as Ref[];
+    let pathChanged = false;
 
     const keys = Object.keys(pathsMap);
 
-    /**
-     * Longest paths comes to the end, so we iterate from the end
-     */
     for (let i = keys.length; i > 0; i--) {
       const key = keys[i - 1];
 
-      if (curr_path.startsWith(key)) {
-        const nd = pathsMap[key];
+      if (currentPath.startsWith(key)) {
+        const node = pathsMap[key];
 
-        if (key !== templateName.name) {
-          const str = curr_path.substring(0, key.length);
-          const slc = str.split(".").length;
+        if (key !== rootElement) {
+          const str = currentPath.substring(0, key.length);
+          // количество элементов, входящих в путь
+          const selection = str.split(".").length;
 
-          ph = ph.slice(slc, ph.length);
-          ph = [nd, ...ph];
+          path = [node, ...path.slice(selection, path.length)];
 
-          path_changed = true;
+          pathChanged = true;
           break;
         }
       }
     }
 
-    /**
-     * It is needed to generate a new reference for later usage
-     */
-    if (expr) {
-      pathsMap[curr_path] = expr;
-    }
+    ref && (pathsMap[currentPath] = ref);
 
-    const path = path_changed
-      ? createMemberExpression(...ph) || templateName
+    const ph = pathChanged
+      ? createMemberExpression(...path) || templateName
       : current.length > 0
       ? createMemberExpression(templateName, ...current) || templateName
       : templateName;
 
-    return path;
+    return ph;
   };
 
   /**
