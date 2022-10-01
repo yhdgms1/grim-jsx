@@ -19,12 +19,7 @@ interface MutableData {
   inuse: Inuse;
 
   generateGlobalUid: (name?: string) => string;
-
-  /**
-   * @todo: remove it
-   * @deprecated
-   */
-  programPath: NodePath<babel.types.Program>;
+  unshift: (...items: types.Statement[]) => number;
 
   sharedNodes: Record<string, types.VariableDeclaration>;
 }
@@ -41,6 +36,7 @@ const enter: VisitNodeFunction<PluginPass, Program> = (path, state) => {
   metadata.config = Object.assign({}, state.opts);
 
   const generateUid = path.scope.generateUid.bind(path.scope);
+  const unshift = path.node.body.unshift.bind(path.node.body);
 
   metadata.mutable = {
     templateFunctionName: generateUid("template"),
@@ -56,8 +52,7 @@ const enter: VisitNodeFunction<PluginPass, Program> = (path, state) => {
     },
 
     generateGlobalUid: generateUid,
-
-    programPath: path,
+    unshift,
 
     sharedNodes: {},
   };

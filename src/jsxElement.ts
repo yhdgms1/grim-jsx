@@ -28,7 +28,7 @@ const JSXElement: VisitNodeFunction<PluginPass, JSXElement> = (path, state) => {
     nextElementSibling: nes,
     inuse,
     generateGlobalUid,
-    programPath,
+    unshift,
     sharedNodes,
   } = getMutable(state);
 
@@ -364,27 +364,22 @@ const JSXElement: VisitNodeFunction<PluginPass, JSXElement> = (path, state) => {
      * We are lucky today, because this is just an _static_ html.
      * TemplateLiteral does not have any expressions, so template could be extracted
      */
-    if (programPath && template.template.quasis.length === 1) {
-      const current_raw = template.template.quasis[0].value.raw;
-
-      let decl: types.VariableDeclaration | null = null;
+    if (template.template.quasis.length === 1) {
+      let raw = template.template.quasis[0].value.raw;
+      let dec = sharedNodes[raw];
 
       /**
        * If there are identical elements, we reuse them
        */
-      if (sharedNodes[current_raw]) {
-        decl = sharedNodes[current_raw];
-      } else {
-        decl = t.variableDeclaration("let", [
+      if (!dec) {
+        sharedNodes[raw] = dec = t.variableDeclaration("let", [
           t.variableDeclarator(t.identifier(generateGlobalUid("tmpl")), templateCall),
         ]);
 
-        programPath.node.body.unshift(decl);
-
-        sharedNodes[current_raw] = decl;
+        unshift(dec);
       }
 
-      const object = decl!.declarations[0].id;
+      const object = dec.declarations[0].id;
 
       if (!t.isExpression(object)) {
         throw path.scope.hub.buildError(node, `${node.type} in unsupported.`, Error);
