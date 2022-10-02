@@ -16,7 +16,10 @@ import {
   createIIFE,
   is,
   escape,
+  text,
 } from "./utils";
+
+import dd from "dedent";
 
 const JSXElement: VisitNodeFunction<PluginPass, JSXElement> = (path, state) => {
   const { parent, node } = path;
@@ -134,67 +137,66 @@ const JSXElement: VisitNodeFunction<PluginPass, JSXElement> = (path, state) => {
 
   const process = (node: typeof root.children[number]) => {
     if (t.isJSXText(node)) {
-      const { value } = node;
-
-      if (value.trim() === "") return;
-
-      const splitted = value.split("\n");
-
-      let text = "";
-
-      let i = 0;
-
-      while (i < splitted.length) {
-        const line = splitted[i];
-
-        let str = escape(line.trim());
-
-        /**
-         *  `     I am formatting` -> `I am formatting`
-         *  ` I am not`            -> ` I am not`
-         *  `I just retarded     ` -> `I just retarded`
-         *  `I am not `            -> `I am not `
-         */
-
-        if (line[0] === " " && line[1] !== " ") {
-          str = " " + str;
-        }
-
-        let len = line.length;
-
-        if (line[len - 1] === " " && line[len - 2] !== " ") {
-          str += " ";
-        }
-
-        if (str.trim() !== "") {
-          text += i > 1 ? " " + str : str;
-        }
-
-        i++;
-      }
-
-      template.push(text);
+      template.push(text(node.value));
     } else if (t.isJSXExpressionContainer(node)) {
       const { expression } = node;
 
-      if (t.isJSXEmptyExpression(expression)) {
-        /**
-         * Empty expression will be taken as a string
-         */
-        template.push(`{}`);
-      } else if (t.isStringLiteral(expression)) {
-        let { value } = expression;
+      switch (expression.type) {
+        case "JSXEmptyExpression": {
+          /**
+           * Empty expression will be taken as a string
+           */
+          template.push(`{}`);
+          break;
+        }
 
-        /**
-         * Statically injects the string
-         * i.e. `<div>{'hello lol'}</div>` -> `<div>hello lol</div>`
-         */
+        case "StringLiteral": {
+          let { value } = expression;
 
-        value = escape(value);
+          /**
+           * Statically injects the string
+           * i.e. `<div>{'hello lol'}</div>` -> `<div>hello lol</div>`
+           */
 
-        template.push(value);
-      } else {
-        template.push(expression);
+          template.push(escape(value));
+          break;
+        }
+
+        case "TemplateLiteral": {
+          let { quasis } = expression;
+
+          if (quasis.length === 1) {
+            const element = quasis[0];
+            const { raw, cooked } = element.value;
+
+            if (cooked) {
+              element.value.raw = element.value.cooked = text(dd(cooked));
+            } else {
+              element.value.raw = text(dd(raw));
+            }
+
+            const result = element.value.cooked || element.value.raw;
+
+            template.push(result);
+            break;
+          }
+
+          if (quasis.length > 1 && config.enableCrazyOptimizations) {
+            for (let element of quasis) {
+              const { raw, cooked } = element.value;
+
+              if (cooked) {
+                element.value.raw = element.value.cooked = text(dd(cooked));
+              } else {
+                element.value.raw = text(dd(raw));
+              }
+            }
+          }
+        }
+
+        default: {
+          template.push(expression);
+        }
       }
     } else if (t.isJSXElement(node)) {
       let tagName = getJSXElementName(node.openingElement.name);
@@ -361,7 +363,7 @@ const JSXElement: VisitNodeFunction<PluginPass, JSXElement> = (path, state) => {
     }
 
     /**
-     * We are lucky today, because this is just an _static_ html.
+     * We are lucky today, because this is just a _static_ html.
      * TemplateLiteral does not have any expressions, so template could be extracted
      */
     if (template.template.quasis.length === 1) {

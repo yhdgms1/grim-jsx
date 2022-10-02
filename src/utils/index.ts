@@ -10,4 +10,5 @@ export { isObject } from "./is-object";
 export { createIIFE } from "./create-iife";
 export { is } from "./is";
 export { escape } from "./escape";
+export { text } from "./escape-text";
 export * as constants from "./constants";

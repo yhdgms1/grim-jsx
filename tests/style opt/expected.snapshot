@@ -1,0 +1,7 @@
+{
+  const style = `<style>.name {key: value; }</style>`;
+}
+{
+  let display = "none";
+  const style = `<style>${`.luck {display:${display};}`}</style>`;
+}

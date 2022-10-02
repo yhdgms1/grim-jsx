@@ -5,6 +5,11 @@ interface BasicOptions {
    */
   enableStringMode?: boolean;
   /**
+   * Enables crazy optimizations.
+   * @default false
+   */
+  enableCrazyOptimizations?: boolean;
+  /**
    * Enables the possibility to use comments to configure the compiler.
    * @default undefined
    */

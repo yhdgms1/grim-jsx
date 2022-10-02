@@ -28,6 +28,7 @@
     "@rollup/plugin-node-resolve": "^13.2.1",
     "@rollup/plugin-replace": "^4.0.0",
     "@types/babel__core": "^7.1.19",
+    "@types/dedent": "^0.7.0",
     "esbuild": "^0.15.6",
     "rollup": "^2.70.2",
     "rollup-plugin-esbuild-transform": "^1.5.0",
@@ -39,7 +40,8 @@
   },
   "dependencies": {
     "@artemis69/im": "^0.2.0",
-    "@babel/plugin-syntax-jsx": "^7.16.7"
+    "@babel/plugin-syntax-jsx": "^7.16.7",
+    "dedent": "^0.7.0"
   },
   "types": "./types.d.ts"
 }
