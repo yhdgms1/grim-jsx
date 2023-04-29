@@ -1,13 +1,15 @@
-namespace JSX {
-  type Element = HTMLElement | string;
+declare global {
+  namespace JSX {
+    export type Element = HTMLElement;
 
-  interface ElementChildrenAttribute {
-    children?: any;
-  }
+    export interface ElementChildrenAttribute {
+      children?: any;
+    }
 
-  interface IntrinsicElements {
-    [element: any]: any;
+    export interface IntrinsicElements {
+      [element: string]: any;
+    }
   }
 }
 
-export {};
+export { };

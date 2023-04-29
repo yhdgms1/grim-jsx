@@ -1,8 +1,5 @@
 import type * as BabelCore from "@babel/core";
 
-import { im } from "@artemis69/im";
-import syntaxJSX from "@babel/plugin-syntax-jsx";
-
 import { setBabel } from "./share";
 import { JSXElement } from "./jsxElement";
 import { enter } from "./enter";
@@ -12,7 +9,12 @@ const compileJSXPlugin = (babel: typeof BabelCore, options: unknown): babel.Plug
   setBabel(babel);
 
   return {
-    inherits: im(syntaxJSX),
+    inherits: () => ({
+      name: 'grim-jsx',
+      manipulateOptions(_: unknown, opts: { plugins: string[] }) {
+        opts.plugins.push('jsx');
+      }
+    }),
     visitor: {
       JSXFragment(path) {
         throw path.buildCodeFrameError("JSXFragment is not supported.");
