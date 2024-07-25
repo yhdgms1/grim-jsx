@@ -117,9 +117,9 @@ const element = (
 Will be compiled to:
 
 ```jsx
-const people = ["Artem", "Ivan", "Arina", "Kenzi"];
-const element = `<div><h1>Hello!</h1><ul>${people
-  .map((person) => `<li>${person}</li>`)
+const people = ["soup", "kimchi", "something"];
+const element = `<div><h1>Hello!</h1><ul>${dishes
+  .map((person) => `<li>${dish}</li>`)
   .join("")}</ul></div>`;
 ```
 
