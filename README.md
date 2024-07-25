@@ -104,12 +104,12 @@ But what if you just want Grim to compile JSX into strings and not to use DOM? Y
 Within this mode, this code:
 
 ```jsx
-const people = ["Artem", "Ivan", "Arina", "Kenzi"];
+const dishes = ["soup", "kimchi", "something"];
 
 const element = (
   <div>
     <h1>Hello!</h1>
-    <ul>{people.map((person) => <li>{person}</li>).join("")}</ul>
+    <ul>{dishes.map((person) => <li>{dish}</li>).join("")}</ul>
   </div>
 );
 ```
